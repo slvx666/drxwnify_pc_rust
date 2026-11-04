@@ -1,0 +1,22 @@
+[package]
+name = "drxwnify-nostr"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+secp256k1.workspace = true
+bech32.workspace = true
+sha2.workspace = true
+aes.workspace = true
+cbc.workspace = true
+tokio-tungstenite.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+chrono.workspace = true
+rand.workspace = true
+hex = "0.4"

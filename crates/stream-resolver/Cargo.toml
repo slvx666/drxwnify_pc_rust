@@ -1,0 +1,16 @@
+[package]
+name = "drxwnify-stream-resolver"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-network.workspace = true
+drxwnify-shared-models.workspace = true
+drxwnify-providers.workspace = true
+tokio.workspace = true
+futures.workspace = true
+tracing.workspace = true
+parking_lot = "0.12"

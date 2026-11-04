@@ -1,0 +1,14 @@
+[package]
+name = "drxwnify-cache"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-shared-models.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+serde.workspace = true
+serde_json.workspace = true

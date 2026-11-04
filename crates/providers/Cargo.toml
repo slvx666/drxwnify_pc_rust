@@ -1,0 +1,19 @@
+[package]
+name = "drxwnify-providers"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-network.workspace = true
+drxwnify-shared-models.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+regex.workspace = true
+tokio.workspace = true
+async-trait.workspace = true
+tracing.workspace = true
+urlencoding = "2.1"

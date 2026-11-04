@@ -1,0 +1,16 @@
+[package]
+name = "drxwnify-search"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-network.workspace = true
+drxwnify-shared-models.workspace = true
+drxwnify-providers.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true

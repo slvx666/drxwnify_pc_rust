@@ -1,0 +1,15 @@
+[package]
+name = "drxwnify-downloads"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-shared-models.workspace = true
+drxwnify-network.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+serde.workspace = true
+serde_json.workspace = true

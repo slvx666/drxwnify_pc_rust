@@ -1,0 +1,13 @@
+[package]
+name = "drxwnify-windows-integration"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-shared-models.workspace = true
+windows.workspace = true
+tokio.workspace = true
+tracing.workspace = true

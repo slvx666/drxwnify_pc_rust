@@ -1,0 +1,15 @@
+[package]
+name = "drxwnify-audio-engine"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+drxwnify-core.workspace = true
+drxwnify-shared-models.workspace = true
+cpal.workspace = true
+rustfft.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+parking_lot = "0.12"
