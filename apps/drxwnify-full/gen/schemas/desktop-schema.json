@@ -177,6 +177,426 @@
       "description": "Permission identifier",
       "oneOf": [
         {
+          "description": "Enables the add_to_playlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-add-to-playlist",
+          "markdownDescription": "Enables the add_to_playlist command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the clear_history command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-clear-history",
+          "markdownDescription": "Enables the clear_history command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the clear_queue command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-clear-queue",
+          "markdownDescription": "Enables the clear_queue command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the close_window command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-close-window",
+          "markdownDescription": "Enables the close_window command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the create_playlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-create-playlist",
+          "markdownDescription": "Enables the create_playlist command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_accounts command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-accounts",
+          "markdownDescription": "Enables the get_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_friends command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-friends",
+          "markdownDescription": "Enables the get_friends command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_history command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-history",
+          "markdownDescription": "Enables the get_history command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_liked command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-liked",
+          "markdownDescription": "Enables the get_liked command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_lyrics command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-lyrics",
+          "markdownDescription": "Enables the get_lyrics command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_messages command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-messages",
+          "markdownDescription": "Enables the get_messages command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_playback_state command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-playback-state",
+          "markdownDescription": "Enables the get_playback_state command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_playlists command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-playlists",
+          "markdownDescription": "Enables the get_playlists command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-settings",
+          "markdownDescription": "Enables the get_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_spectrum command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-spectrum",
+          "markdownDescription": "Enables the get_spectrum command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the import_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-import-backup",
+          "markdownDescription": "Enables the import_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the maximize_window command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-maximize-window",
+          "markdownDescription": "Enables the maximize_window command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the minimize_window command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-minimize-window",
+          "markdownDescription": "Enables the minimize_window command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the next_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-next-track",
+          "markdownDescription": "Enables the next_track command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the play_queue_index command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-play-queue-index",
+          "markdownDescription": "Enables the play_queue_index command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the play_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-play-track",
+          "markdownDescription": "Enables the play_track command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the play_tracks command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-play-tracks",
+          "markdownDescription": "Enables the play_tracks command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the previous_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-previous-track",
+          "markdownDescription": "Enables the previous_track command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the save_accounts command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-save-accounts",
+          "markdownDescription": "Enables the save_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the save_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-save-settings",
+          "markdownDescription": "Enables the save_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the search command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-search",
+          "markdownDescription": "Enables the search command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the seek command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-seek",
+          "markdownDescription": "Enables the seek command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the send_message command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-send-message",
+          "markdownDescription": "Enables the send_message command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_balance command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-balance",
+          "markdownDescription": "Enables the set_balance command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_repeat_mode command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-repeat-mode",
+          "markdownDescription": "Enables the set_repeat_mode command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_volume command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-volume",
+          "markdownDescription": "Enables the set_volume command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the shuffle command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-shuffle",
+          "markdownDescription": "Enables the shuffle command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the toggle_like command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-toggle-like",
+          "markdownDescription": "Enables the toggle_like command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the toggle_play_pause command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-toggle-play-pause",
+          "markdownDescription": "Enables the toggle_play_pause command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the translate_lyrics command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-translate-lyrics",
+          "markdownDescription": "Enables the translate_lyrics command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the add_to_playlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-add-to-playlist",
+          "markdownDescription": "Denies the add_to_playlist command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the clear_history command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-clear-history",
+          "markdownDescription": "Denies the clear_history command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the clear_queue command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-clear-queue",
+          "markdownDescription": "Denies the clear_queue command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the close_window command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-close-window",
+          "markdownDescription": "Denies the close_window command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the create_playlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-create-playlist",
+          "markdownDescription": "Denies the create_playlist command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_accounts command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-accounts",
+          "markdownDescription": "Denies the get_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_friends command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-friends",
+          "markdownDescription": "Denies the get_friends command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_history command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-history",
+          "markdownDescription": "Denies the get_history command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_liked command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-liked",
+          "markdownDescription": "Denies the get_liked command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_lyrics command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-lyrics",
+          "markdownDescription": "Denies the get_lyrics command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_messages command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-messages",
+          "markdownDescription": "Denies the get_messages command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_playback_state command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-playback-state",
+          "markdownDescription": "Denies the get_playback_state command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_playlists command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-playlists",
+          "markdownDescription": "Denies the get_playlists command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-settings",
+          "markdownDescription": "Denies the get_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_spectrum command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-spectrum",
+          "markdownDescription": "Denies the get_spectrum command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the import_backup command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-import-backup",
+          "markdownDescription": "Denies the import_backup command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the maximize_window command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-maximize-window",
+          "markdownDescription": "Denies the maximize_window command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the minimize_window command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-minimize-window",
+          "markdownDescription": "Denies the minimize_window command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the next_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-next-track",
+          "markdownDescription": "Denies the next_track command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the play_queue_index command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-play-queue-index",
+          "markdownDescription": "Denies the play_queue_index command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the play_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-play-track",
+          "markdownDescription": "Denies the play_track command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the play_tracks command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-play-tracks",
+          "markdownDescription": "Denies the play_tracks command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the previous_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-previous-track",
+          "markdownDescription": "Denies the previous_track command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the save_accounts command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-save-accounts",
+          "markdownDescription": "Denies the save_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the save_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-save-settings",
+          "markdownDescription": "Denies the save_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the search command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-search",
+          "markdownDescription": "Denies the search command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the seek command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-seek",
+          "markdownDescription": "Denies the seek command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the send_message command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-send-message",
+          "markdownDescription": "Denies the send_message command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_balance command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-balance",
+          "markdownDescription": "Denies the set_balance command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_repeat_mode command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-repeat-mode",
+          "markdownDescription": "Denies the set_repeat_mode command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_volume command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-volume",
+          "markdownDescription": "Denies the set_volume command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the shuffle command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-shuffle",
+          "markdownDescription": "Denies the shuffle command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the toggle_like command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-toggle-like",
+          "markdownDescription": "Denies the toggle_like command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the toggle_play_pause command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-toggle-play-pause",
+          "markdownDescription": "Denies the toggle_play_pause command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the translate_lyrics command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-translate-lyrics",
+          "markdownDescription": "Denies the translate_lyrics command without any pre-configured scope."
+        },
+        {
           "description": "Default core plugins set.\n#### This default permission set includes:\n\n- `core:path:default`\n- `core:event:default`\n- `core:window:default`\n- `core:webview:default`\n- `core:app:default`\n- `core:image:default`\n- `core:resources:default`\n- `core:menu:default`\n- `core:tray:default`",
           "type": "string",
           "const": "core:default",

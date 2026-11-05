@@ -1,5 +1,5 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{SampleFormat, Stream, StreamConfig};
+use cpal::{Stream, StreamConfig};
 use drxwnify_core::{DrxwnifyError, DrxwnifyResult};
 use parking_lot::Mutex;
 use std::collections::VecDeque;

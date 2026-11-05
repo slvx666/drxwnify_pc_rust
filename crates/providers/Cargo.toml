@@ -17,3 +17,7 @@ tokio.workspace = true
 async-trait.workspace = true
 tracing.workspace = true
 urlencoding = "2.1"
+url.workspace = true
+
+[dev-dependencies]
+drxwnify-audio-engine.workspace = true

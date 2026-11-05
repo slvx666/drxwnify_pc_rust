@@ -23,11 +23,15 @@ impl SoundCloudProvider {
 
         let html = self.http.get_text("https://soundcloud.com").await?;
         let script_re = Regex::new(r#"src="(https://a-v2\.sndcdn\.com/assets/[^"]+\.js)""#).unwrap();
-        let client_id_re = Regex::new(r#"client_id=([a-zA-Z0-9]{32})"#).unwrap();
+        let client_id_re = Regex::new(r#"client_id\s*[:=]\s*"?([0-9a-zA-Z]{32})"#).unwrap();
 
+        let mut scripts = Vec::new();
         for cap in script_re.captures_iter(&html) {
-            let script_url = &cap[1];
-            if let Ok(script_body) = self.http.get_text(script_url).await {
+            scripts.push(cap[1].to_string());
+        }
+
+        for script_url in scripts.into_iter().rev() {
+            if let Ok(script_body) = self.http.get_text(&script_url).await {
                 if let Some(id_cap) = client_id_re.captures(&script_body) {
                     let id = id_cap[1].to_string();
                     self.client_id = Some(id.clone());
@@ -73,12 +77,13 @@ impl SoundCloudProvider {
                 }
 
                 if let Some(media) = item["media"]["transcodings"].as_array() {
+                    // Prefer progressive direct MP3
                     for trans in media {
                         let protocol = trans["format"]["protocol"].as_str().unwrap_or("");
                         if protocol == "progressive" {
                             if let Some(trans_url) = trans["url"].as_str() {
                                 let stream_req = format!("{}?client_id={}", trans_url, client_id);
-                                let stream_resp: Value = self
+                                let stream_resp: Result<Value, _> = self
                                     .http
                                     .inner()
                                     .get(&stream_req)
@@ -86,19 +91,53 @@ impl SoundCloudProvider {
                                     .await
                                     .map_err(|e| DrxwnifyError::Network(e.to_string()))?
                                     .json()
-                                    .await
-                                    .map_err(|e| DrxwnifyError::Network(e.to_string()))?;
+                                    .await;
 
-                                if let Some(stream_url) = stream_resp["url"].as_str() {
-                                    return Ok(ResolvedStream {
-                                        url: stream_url.to_string(),
-                                        source: "soundcloud".to_string(),
-                                        bitrate_kbps: 128,
-                                        codec: AudioCodec::Mp3,
-                                        protocol: StreamProtocol::DirectHttp,
-                                        headers: vec![],
-                                        expires_at: None,
-                                    });
+                                if let Ok(resp) = stream_resp {
+                                    if let Some(stream_url) = resp["url"].as_str() {
+                                        return Ok(ResolvedStream {
+                                            url: stream_url.to_string(),
+                                            source: "soundcloud".to_string(),
+                                            bitrate_kbps: 128,
+                                            codec: AudioCodec::Mp3,
+                                            protocol: StreamProtocol::DirectHttp,
+                                            headers: vec![],
+                                            expires_at: None,
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Fallback to HLS
+                    for trans in media {
+                        let protocol = trans["format"]["protocol"].as_str().unwrap_or("");
+                        if protocol == "hls" {
+                            if let Some(trans_url) = trans["url"].as_str() {
+                                let stream_req = format!("{}?client_id={}", trans_url, client_id);
+                                let stream_resp: Result<Value, _> = self
+                                    .http
+                                    .inner()
+                                    .get(&stream_req)
+                                    .send()
+                                    .await
+                                    .map_err(|e| DrxwnifyError::Network(e.to_string()))?
+                                    .json()
+                                    .await;
+
+                                if let Ok(resp) = stream_resp {
+                                    if let Some(stream_url) = resp["url"].as_str() {
+                                        return Ok(ResolvedStream {
+                                            url: stream_url.to_string(),
+                                            source: "soundcloud".to_string(),
+                                            bitrate_kbps: 128,
+                                            codec: AudioCodec::Mp3,
+                                            protocol: StreamProtocol::HlsAes128,
+                                            headers: vec![],
+                                            expires_at: None,
+                                        });
+                                    }
                                 }
                             }
                         }

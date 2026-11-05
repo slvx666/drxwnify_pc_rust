@@ -7,6 +7,7 @@ license.workspace = true
 
 [dependencies]
 drxwnify-core.workspace = true
+drxwnify-network.workspace = true
 drxwnify-shared-models.workspace = true
 drxwnify-audio-engine.workspace = true
 drxwnify-playback.workspace = true

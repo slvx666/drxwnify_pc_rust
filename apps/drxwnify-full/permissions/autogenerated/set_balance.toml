@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-set-balance"
+description = "Enables the set_balance command without any pre-configured scope."
+commands.allow = ["set_balance"]
+
+[[permission]]
+identifier = "deny-set-balance"
+description = "Denies the set_balance command without any pre-configured scope."
+commands.deny = ["set_balance"]

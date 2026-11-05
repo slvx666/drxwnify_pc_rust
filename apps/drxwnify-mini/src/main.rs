@@ -50,7 +50,8 @@ impl DrxwnifyMiniApp {
 
         let event_bus = EventBus::default();
         let audio_engine = Arc::new(AudioEngine::new(event_bus.clone(), None));
-        let player = Player::new(audio_engine, event_bus.clone());
+        let http = drxwnify_network::HttpClient::new().unwrap_or_else(|_| drxwnify_network::HttpClient::default());
+        let player = Player::new(audio_engine, event_bus.clone(), http);
         let library = Arc::new(LibraryManager::new(paths));
 
         let app = Self {

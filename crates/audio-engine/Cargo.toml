@@ -13,3 +13,4 @@ rustfft.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 parking_lot = "0.12"
+symphonia = { version = "0.5", features = ["all"] }

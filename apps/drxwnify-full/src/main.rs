@@ -268,10 +268,10 @@ fn main() {
 
     let event_bus = EventBus::default();
     let audio_engine = Arc::new(AudioEngine::new(event_bus.clone(), None));
-    let player = Player::new(audio_engine, event_bus.clone());
+    let http = HttpClient::default();
+    let player = Player::new(audio_engine, event_bus.clone(), http.clone());
     let library = Arc::new(LibraryManager::new(paths.clone()));
 
-    let http = HttpClient::default();
     let search_service = SearchService::new(http.clone());
     let lyrics_service = LyricsService::new(http);
     let chathub = Arc::new(Mutex::new(ChatHubManager::new()));

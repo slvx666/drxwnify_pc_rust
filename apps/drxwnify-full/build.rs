@@ -1,3 +1,41 @@
 fn main() {
-    tauri_build::build()
+    let attributes = tauri_build::Attributes::new()
+        .app_manifest(tauri_build::AppManifest::new().commands(&[
+            "play_track",
+            "play_tracks",
+            "play_queue_index",
+            "clear_queue",
+            "toggle_play_pause",
+            "seek",
+            "set_volume",
+            "set_balance",
+            "next_track",
+            "previous_track",
+            "shuffle",
+            "set_repeat_mode",
+            "get_playback_state",
+            "get_spectrum",
+            "get_liked",
+            "toggle_like",
+            "search",
+            "get_lyrics",
+            "translate_lyrics",
+            "get_history",
+            "clear_history",
+            "get_playlists",
+            "create_playlist",
+            "add_to_playlist",
+            "get_settings",
+            "save_settings",
+            "get_accounts",
+            "save_accounts",
+            "get_friends",
+            "get_messages",
+            "send_message",
+            "import_backup",
+            "minimize_window",
+            "maximize_window",
+            "close_window",
+        ]));
+    tauri_build::try_build(attributes).expect("failed to run tauri-build");
 }

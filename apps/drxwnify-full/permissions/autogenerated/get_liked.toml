@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-get-liked"
+description = "Enables the get_liked command without any pre-configured scope."
+commands.allow = ["get_liked"]
+
+[[permission]]
+identifier = "deny-get-liked"
+description = "Denies the get_liked command without any pre-configured scope."
+commands.deny = ["get_liked"]

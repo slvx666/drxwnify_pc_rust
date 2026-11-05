@@ -9,9 +9,16 @@ license.workspace = true
 drxwnify-core.workspace = true
 drxwnify-shared-models.workspace = true
 drxwnify-audio-engine.workspace = true
+drxwnify-stream-resolver.workspace = true
+drxwnify-network.workspace = true
 rand.workspace = true
 tokio.workspace = true
 tracing.workspace = true
 parking_lot = "0.12"
 serde.workspace = true
 serde_json.workspace = true
+url.workspace = true
+regex.workspace = true
+
+[dev-dependencies]
+drxwnify-providers.workspace = true

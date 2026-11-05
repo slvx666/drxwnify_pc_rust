@@ -14,18 +14,34 @@
   <!-- App Container with 3-Panel Layout -->
   <div id="app-shell">
     
-    <!-- TOP BAR (56px) -->
+    <!-- TOP BAR (64px) matching Kotlin Shell.kt -->
     <header id="top-bar" data-tauri-drag-region>
-      <div class="top-nav-buttons">
-        <button id="nav-back" class="btn-icon" title="Назад">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+      <!-- Left: Logo & Navigation Chevrons -->
+      <div class="top-bar-left">
+        <div id="brand-logo" class="brand-logo" title="Drxwnify — На главную">
+          <span class="brand-glyph">水</span>
+          <span class="brand-text">DRXWNIFY</span>
+        </div>
+        <div class="nav-chevrons">
+          <button id="nav-back" class="btn-icon chevron-btn" title="Назад (Alt+Left)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <button id="nav-forward" class="btn-icon chevron-btn" title="Вперёд (Alt+Right)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Center: Home Button & Search Pill (46px) -->
+      <div class="top-bar-center">
+        <button id="nav-home-btn" class="btn-icon home-nav-btn active" title="Главная">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         </button>
-        <button id="nav-forward" class="btn-icon" title="Вперёд">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
-        </button>
-        <button id="nav-refresh" class="btn-icon" title="Обновить">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"/></svg>
-        </button>
+        <div class="search-pill-container">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="search-input" placeholder="Трек, исполнитель, альбом — или вставь ссылку" autocomplete="off">
+          <button id="search-clear" class="btn-clear hidden" title="Очистить поиск">&times;</button>
+        </div>
       </div>
 
       <!-- Polybar (Look.Terminal only) -->
@@ -35,77 +51,132 @@
         <span class="poly-mod mod-vol" id="poly-vol">vol: 80%</span>
       </div>
 
-      <!-- Search Pill -->
-      <div class="search-pill-container">
-        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" id="search-input" placeholder="Треки, альбомы, артисты или ссылки..." autocomplete="off">
-        <button id="search-clear" class="btn-clear hidden">&times;</button>
-      </div>
+      <!-- Right: Friends, Integrations, Downloads, Phone Sync, Theme & Window Controls -->
+      <div class="top-bar-right">
+        <button id="btn-top-friends" class="btn-icon top-tool-btn" title="Друзья & Nostr">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span id="friends-online-dot" class="online-dot hidden"></span>
+        </button>
+        <button id="btn-top-integrations" class="btn-icon top-tool-btn" title="Интеграции">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19.439 7.85c-.049-.322.059-.648.289-.878l1.568-1.568c.47-.47.47-1.233 0-1.704l-1.996-1.996c-.47-.47-1.234-.47-1.704 0l-1.568 1.568c-.23.23-.556.338-.878.29-1.202-.182-2.457.199-3.342 1.084l-4.5 4.5c-.885.885-1.266 2.14-1.084 3.342.048.322-.06.648-.29.878L4.764 14.93c-.47.47-.47 1.234 0 1.704l1.996 1.996c.47.47 1.234.47 1.704 0l1.568-1.568c.23-.23.556-.338.878-.29 1.202.182 2.457-.199 3.342-1.084l4.5-4.5c.885-.885 1.266-2.14 1.084-3.342z"/></svg>
+        </button>
+        <button id="btn-top-downloads" class="btn-icon top-tool-btn" title="Скачанные треки">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        </button>
 
-      <!-- Window Controls -->
-      <div class="window-controls">
-        <button id="btn-theme-selector" class="btn-icon" title="Сменить тему">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2M12 20v2m4.9-14.9 1.4-1.4M5.7 18.3l1.4-1.4M20 12h2M2 12h2m14.9 4.9 1.4 1.4M5.7 5.7l1.4 1.4"/></svg>
+        <!-- Phone Sync Pill Button -->
+        <button id="btn-phone-sync" class="phone-sync-pill" title="Синхронизация с телефоном (бэкап ZIP)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+          <span>Телефон</span>
         </button>
-        <button id="btn-minimize" class="win-btn" title="Свернуть">
-          <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="2" fill="currentColor"/></svg>
+
+        <button id="btn-theme-selector" class="btn-icon" title="Сменить тему и стиль">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
         </button>
-        <button id="btn-maximize" class="win-btn" title="Развернуть">
-          <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none"/></svg>
-        </button>
-        <button id="btn-close" class="win-btn btn-close" title="Закрыть">
-          <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="2"/></svg>
-        </button>
+
+        <div class="user-avatar-btn" title="Профиль & Nostr ID">
+          <span>水</span>
+        </div>
+
+        <div class="window-controls">
+          <button id="btn-minimize" class="win-btn" title="Свернуть">
+            <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="2" fill="currentColor"/></svg>
+          </button>
+          <button id="btn-maximize" class="win-btn" title="Развернуть">
+            <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" stroke="currentColor" stroke-width="2" fill="none"/></svg>
+          </button>
+          <button id="btn-close" class="win-btn btn-close" title="Закрыть">
+            <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        </div>
       </div>
     </header>
 
     <!-- MAIN BODY (3 Columns) -->
     <div id="main-body">
       
-      <!-- LEFT NAVIGATION PANEL -->
+      <!-- LEFT NAVIGATION PANEL (LibraryPanel) -->
       <nav id="left-panel">
         <div class="panel-header">
-          <span class="panel-title">Медиатека</span>
-          <button id="btn-collapse-left" class="btn-icon-subtle" title="Свернуть панель">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
-          </button>
+          <div class="panel-title-wrap">
+            <span class="panel-title">Медиатека</span>
+            <span class="panel-title-kanji">書庫</span>
+          </div>
+          <div class="panel-header-actions">
+            <button id="btn-new-playlist" class="btn-icon-subtle" title="Создать плейлист">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <button id="btn-collapse-left" class="btn-icon-subtle" title="Свернуть медиатеку">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+            </button>
+          </div>
         </div>
 
-        <ul class="nav-menu">
-          <li class="nav-item active" data-screen="home">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span class="nav-label">Главная</span>
-          </li>
-          <li class="nav-item" data-screen="search">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <span class="nav-label">Поиск</span>
-          </li>
-          <li class="nav-item" data-screen="liked">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-            <span class="nav-label">Любимые</span>
-            <span class="badge" id="liked-count">0</span>
-          </li>
-          <li class="nav-item" data-screen="downloads">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-            <span class="nav-label">Загрузки</span>
-          </li>
-          <li class="nav-item" data-screen="history">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span class="nav-label">История</span>
-          </li>
-          <li class="nav-item" data-screen="friends">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span class="nav-label">Друзья & Nostr</span>
-          </li>
-          <li class="nav-item" data-screen="reviews">
-            <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            <span class="nav-label">Обзоры drxwnslvt</span>
-          </li>
-        </ul>
+        <!-- Filter Chips (horizontal scroll) -->
+        <div class="library-filter-chips">
+          <button class="chip active" data-filter="all">Все</button>
+          <button class="chip" data-filter="playlists">Плейлисты</button>
+          <button class="chip" data-filter="albums">Альбомы</button>
+          <button class="chip" data-filter="artists">Исполнители</button>
+        </div>
 
-        <div class="panel-section-divider"></div>
-        <div class="panel-subtitle">ПЛЕЙЛИСТЫ <button id="btn-new-playlist" class="btn-inline-add">+</button></div>
-        <div id="nav-playlists-list" class="nav-sublist"></div>
+        <!-- Library Items List -->
+        <div class="library-items-list">
+          <div class="lib-item active" data-screen="liked">
+            <div class="lib-icon-thumb heart-thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            </div>
+            <div class="lib-info">
+              <span class="lib-title">Любимые треки</span>
+              <span class="lib-subtitle" id="liked-subtitle">0 треков</span>
+            </div>
+            <span class="badge" id="liked-count">0</span>
+          </div>
+
+          <div class="lib-item" data-screen="history">
+            <div class="lib-icon-thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="lib-info">
+              <span class="lib-title">История</span>
+              <span class="lib-subtitle">что играло</span>
+            </div>
+          </div>
+
+          <div class="lib-item" data-screen="downloads">
+            <div class="lib-icon-thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            </div>
+            <div class="lib-info">
+              <span class="lib-title">Скачанное</span>
+              <span class="lib-subtitle">офлайн треки</span>
+            </div>
+          </div>
+
+          <div class="lib-item" data-screen="friends">
+            <div class="lib-icon-thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="lib-info">
+              <span class="lib-title">Друзья</span>
+              <span class="lib-subtitle">Nostr & Chat</span>
+            </div>
+          </div>
+
+          <div class="lib-item" data-screen="reviews">
+            <div class="lib-icon-thumb">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div class="lib-info">
+              <span class="lib-title">Обзоры drxwnslvt</span>
+              <span class="lib-subtitle">рецензии</span>
+            </div>
+          </div>
+
+          <div class="panel-section-divider"></div>
+          <div class="panel-subtitle">ПОЛЬЗОВАТЕЛЬСКИЕ ПЛЕЙЛИСТЫ</div>
+          <div id="nav-playlists-list" class="nav-sublist"></div>
+        </div>
       </nav>
 
       <!-- RESIZER LEFT -->
@@ -126,6 +197,7 @@
         <section id="screen-discography" class="screen-view hidden"></section>
         <section id="screen-reviews" class="screen-view hidden"></section>
         <section id="screen-friends" class="screen-view hidden"></section>
+        <section id="screen-settings" class="screen-view hidden"></section>
       </main>
 
       <!-- RESIZER RIGHT -->
@@ -224,22 +296,35 @@
         </div>
       </div>
 
-      <!-- Right: Extras & Volume -->
+      <!-- Right: Extras & Volume (weight 0.3) -->
       <div class="player-extras">
-        <!-- 32-band Spectrum Spectrogram -->
-        <canvas id="spectrogram-canvas" width="64" height="24" title="Спектральный анализ (32 полосы FFT)"></canvas>
+        <!-- Quality Badge & Hanko -->
+        <div class="quality-badge-wrap">
+          <span id="quality-hanko" class="hanko-stamp hidden">FLAC</span>
+          <span id="bitrate-badge" class="badge">320k</span>
+        </div>
 
-        <span id="bitrate-badge" class="badge">320k</span>
+        <!-- Levels: 10-bar tiny FFT Spectrum (34x18) matching Kotlin Levels() -->
+        <canvas id="levels-canvas" width="34" height="18" title="Levels"></canvas>
 
-        <button id="btn-toggle-lyrics" class="btn-icon" title="Текст песни">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <button id="btn-sleep-timer" class="btn-icon" title="Таймер сна">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
         </button>
-        <button id="btn-toggle-queue" class="btn-icon" title="Очередь воспроизведения">
+
+        <button id="btn-toggle-lyrics" class="btn-icon" title="Текст песни (🎤)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+        </button>
+
+        <button id="btn-toggle-queue" class="btn-icon" title="Очередь воспроизведения (≡)">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
 
+        <button id="btn-toggle-nowplaying" class="btn-icon" title="Сейчас играет (◫)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+        </button>
+
         <div class="volume-container">
-          <button id="btn-mute" class="btn-icon-subtle">
+          <button id="btn-mute" class="btn-icon-subtle" title="Mute">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
           </button>
           <div id="volume-bar-track" class="slider-track vol-track">
@@ -274,6 +359,61 @@
         <div class="theme-mode-row">
           <label><input type="radio" name="theme-mode" value="night" checked> Ночная палитра (Night)</label>
           <label><input type="radio" name="theme-mode" value="day"> Дневная палитра (Day)</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLEEP TIMER MODAL -->
+  <div id="modal-sleep-timer" class="modal-overlay hidden">
+    <div class="modal-dialog" style="max-width: 360px;">
+      <div class="modal-header">
+        <h3>Таймер сна</h3>
+        <button id="modal-sleep-close" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="sleep-timer-options" style="display:flex; flex-direction:column; gap:8px;">
+          <button class="chip btn-sleep-opt" data-mins="15">15 минут</button>
+          <button class="chip btn-sleep-opt" data-mins="30">30 минут</button>
+          <button class="chip btn-sleep-opt" data-mins="45">45 минут</button>
+          <button class="chip btn-sleep-opt" data-mins="60">1 час</button>
+          <button class="chip btn-sleep-opt" data-mins="0">Выключить таймер</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE SYNC MODAL -->
+  <div id="modal-phone-sync" class="modal-overlay hidden">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3>Синхронизация с телефоном</h3>
+        <button id="modal-backup-close" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--dim); margin-bottom:14px;">
+          Импортируйте резервную копию (ZIP), экспортированную из Drxwnify на Android.
+        </p>
+        <input type="text" id="backup-file-path" placeholder="Полный путь к backup.zip" style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--fill); border:1px solid var(--panel-border); border-radius:var(--cover-radius); color:var(--text); margin-bottom:14px; font-family:var(--font-main);">
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+          <button id="btn-import-backup-submit" class="btn-primary" style="padding:8px 16px; border-radius:var(--chip-radius); background:var(--accent); color:var(--on-accent); border:none; font-weight:700; cursor:pointer;">Импортировать</button>
+        </div>
+        <div id="backup-status" style="margin-top:10px; font-size:12.5px; color:var(--accent);"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEW PLAYLIST MODAL -->
+  <div id="modal-new-playlist" class="modal-overlay hidden">
+    <div class="modal-dialog" style="max-width: 380px;">
+      <div class="modal-header">
+        <h3>Новый плейлист</h3>
+        <button id="modal-playlist-close" class="btn-close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="new-playlist-name" placeholder="Название плейлиста" style="width:100%; box-sizing:border-box; padding:10px 12px; background:var(--fill); border:1px solid var(--panel-border); border-radius:var(--cover-radius); color:var(--text); margin-bottom:14px; font-family:var(--font-main);">
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+          <button id="btn-create-playlist-submit" class="btn-primary" style="padding:8px 16px; border-radius:var(--chip-radius); background:var(--accent); color:var(--on-accent); border:none; font-weight:700; cursor:pointer;">Создать</button>
         </div>
       </div>
     </div>

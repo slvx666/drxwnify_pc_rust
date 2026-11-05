@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-shuffle"
+description = "Enables the shuffle command without any pre-configured scope."
+commands.allow = ["shuffle"]
+
+[[permission]]
+identifier = "deny-shuffle"
+description = "Denies the shuffle command without any pre-configured scope."
+commands.deny = ["shuffle"]
