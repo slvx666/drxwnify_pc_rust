@@ -18,3 +18,7 @@ serde_json.workspace = true
 [dev-dependencies]
 drxwnify-audio-engine.workspace = true
 drxwnify-playback.workspace = true
+drxwnify-lyrics.workspace = true
+drxwnify-nostr.workspace = true
+drxwnify-persistence.workspace = true
+drxwnify-friends.workspace = true

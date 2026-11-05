@@ -75,6 +75,26 @@ impl LibraryManager {
         Ok(pl)
     }
 
+    pub fn add_to_playlist(&self, playlist_id: &str, track: Track) -> DrxwnifyResult<()> {
+        {
+            let mut data = self.data.write();
+            if let Some(pl) = data.playlists.iter_mut().find(|p| p.id == playlist_id) {
+                if !pl.tracks.iter().any(|t| t.id == track.id) {
+                    pl.tracks.push(track);
+                }
+            }
+        }
+        self.save()
+    }
+
+    pub fn clear_history(&self) -> DrxwnifyResult<()> {
+        {
+            let mut data = self.data.write();
+            data.history.clear();
+        }
+        self.save()
+    }
+
     pub fn save(&self) -> DrxwnifyResult<()> {
         let data = self.data.read().clone();
         Store::save_atomic(&self.paths.library_file, &data)

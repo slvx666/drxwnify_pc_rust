@@ -36,6 +36,17 @@ impl TrackQueue {
         self.current_index
     }
 
+    pub fn set_current_index(&mut self, idx: usize) {
+        if idx < self.tracks.len() {
+            self.current_index = idx;
+        }
+    }
+
+    pub fn clear(&mut self) {
+        self.tracks.clear();
+        self.current_index = 0;
+    }
+
     pub fn repeat_mode(&self) -> RepeatMode {
         self.repeat_mode
     }

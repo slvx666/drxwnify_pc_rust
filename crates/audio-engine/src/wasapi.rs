@@ -10,6 +10,9 @@ pub struct WasapiOutput {
     buffer: Arc<Mutex<VecDeque<(i16, i16)>>>,
 }
 
+unsafe impl Send for WasapiOutput {}
+unsafe impl Sync for WasapiOutput {}
+
 impl WasapiOutput {
     pub fn new(device_name: Option<&str>) -> DrxwnifyResult<Self> {
         let host = cpal::default_host();

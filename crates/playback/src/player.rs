@@ -123,11 +123,60 @@ impl Player {
         self.queue.lock().set_repeat_mode(mode);
     }
 
+    pub fn repeat_mode(&self) -> RepeatMode {
+        self.queue.lock().repeat_mode()
+    }
+
     pub fn queue(&self) -> Arc<Mutex<TrackQueue>> {
         Arc::clone(&self.queue)
     }
 
     pub fn current_track(&self) -> Option<Track> {
         self.queue.lock().current_track().cloned()
+    }
+
+    pub fn is_playing(&self) -> bool {
+        self.audio_engine.is_playing()
+    }
+
+    pub fn get_position_ms(&self) -> i64 {
+        self.audio_engine.get_position_ms()
+    }
+
+    pub fn get_spectrum(&self) -> Vec<f32> {
+        self.audio_engine.get_spectrum()
+    }
+
+    pub fn queue_tracks(&self) -> Vec<Track> {
+        self.queue.lock().tracks().to_vec()
+    }
+
+    pub fn current_index(&self) -> usize {
+        self.queue.lock().current_index()
+    }
+
+    pub fn clear_queue(&self) {
+        self.queue.lock().clear();
+    }
+
+    pub fn play_queue_index(&self, index: usize) {
+        let track = {
+            let mut q = self.queue.lock();
+            if index < q.len() {
+                q.set_current_index(index);
+                q.current_track().cloned()
+            } else {
+                None
+            }
+        };
+        if let Some(t) = track {
+            let total = self.queue.lock().len();
+            self.event_bus.emit(CoreEvent::TrackChanged(TrackChangedEvent {
+                track: Some(t),
+                index,
+                total,
+            }));
+            self.audio_engine.play();
+        }
     }
 }

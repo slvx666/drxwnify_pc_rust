@@ -19,6 +19,7 @@ members = [
     "crates/discord",
     "crates/windows-integration",
     "apps/drxwnify-mini",
+    "apps/drxwnify-full",
     "benches",
 ]
 

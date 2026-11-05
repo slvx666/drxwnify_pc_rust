@@ -109,4 +109,12 @@ impl AudioEngine {
     pub fn is_playing(&self) -> bool {
         self.is_playing.load(Ordering::SeqCst)
     }
+
+    pub fn get_spectrum(&self) -> Vec<f32> {
+        if self.is_playing() {
+            self.spectrum.lock().compute_spectrum().to_vec()
+        } else {
+            vec![0.0; 32]
+        }
+    }
 }
