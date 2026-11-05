@@ -37,6 +37,14 @@ impl ChatHubManager {
         &self.friends
     }
 
+    pub fn add_friend(&mut self, friend: FriendStatus) {
+        if let Some(existing) = self.friends.iter_mut().find(|f| f.pubkey == friend.pubkey) {
+            *existing = friend;
+        } else {
+            self.friends.push(friend);
+        }
+    }
+
     pub fn add_message(&mut self, msg: ChatMessage) {
         self.messages.push(msg);
     }
