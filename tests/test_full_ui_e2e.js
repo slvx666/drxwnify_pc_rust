@@ -290,29 +290,81 @@ async function runExhaustiveVerification() {
         if (stickerGambling) stickerGambling.click();
         await new Promise(r => setTimeout(r, 200));
 
-        // Attach current track
+        // Test Reaction: click quick reaction 🔥 on the first message
+        const quickFire = document.querySelector('.reaction-quick-btn[data-reaction="🔥"]');
+        if (quickFire) quickFire.click();
+        await new Promise(r => setTimeout(r, 200));
+
+        // Test 1:1 Android Chat Music Picker Modal
         const attachBtn = document.getElementById("btn-attach-track");
         if (attachBtn) attachBtn.click();
         await new Promise(r => setTimeout(r, 200));
 
+        const musicModal = document.getElementById("modal-chat-music-picker");
+        const modalVisible = musicModal && !musicModal.classList.contains("hidden");
+
+        // Switch to "Любимые" tab
+        const tabLibrary = musicModal ? musicModal.querySelector('.picker-tab[data-tab="library"]') : null;
+        if (tabLibrary) tabLibrary.click();
+        await new Promise(r => setTimeout(r, 200));
+
+        // Select the first track in the picker
+        const firstTrackItem = musicModal ? musicModal.querySelector('.picker-track-item') : null;
+        if (firstTrackItem) firstTrackItem.click();
+        await new Promise(r => setTimeout(r, 200));
+
+        // Check attached track bar
+        const attachedBar = document.getElementById("chat-attached-track-bar");
+        const hasAttachedBar = !!attachedBar;
+
+        // Send message with attached track
+        const chatInput = document.getElementById("chat-text-input");
+        if (chatInput) chatInput.value = "Зацени этот трек из чата!";
+        const sendBtn = document.getElementById("btn-chat-send");
+        if (sendBtn) sendBtn.click();
+        await new Promise(r => setTimeout(r, 300));
+
         const msgs = document.querySelectorAll("#chat-messages-container > div");
         const hasStickerImg = !!document.querySelector('img[src*="stickers/keepgambling.webp"]');
-        const hasTrackCard = !!document.querySelector('.chat-track-card');
+        const hasTrackCard = !!document.querySelector('.chat-msg-track-card');
+        const hasReactionPill = !!document.querySelector('.reaction-pill');
+
+        // Test Play button on the chat track card
+        const playChatTrackBtn = document.querySelector('.btn-chat-music-play');
+        if (playChatTrackBtn) playChatTrackBtn.click();
+        await new Promise(r => setTimeout(r, 200));
+
+        // Test Download button on the chat track card
+        const dlChatTrackBtn = document.querySelector('.btn-chat-music-download');
+        if (dlChatTrackBtn) dlChatTrackBtn.click();
+        await new Promise(r => setTimeout(r, 200));
 
         return {
           totalStickersInPicker: stickerItems,
           totalMessages: msgs.length,
           hasStickerImg,
-          hasTrackCard
+          modalVisible,
+          hasAttachedBar,
+          hasTrackCard,
+          hasReactionPill,
         };
       })()
     `);
-    console.log("    Nostr Chat & Stickers verified:", chatResult);
+    console.log("    Nostr Chat, 37 Stickers, Reactions & Music Picker verified:", chatResult);
     if (chatResult.totalStickersInPicker !== 37) {
       throw new Error(`Expected 37 stickers in picker, found ${chatResult.totalStickersInPicker}`);
     }
     if (!chatResult.hasStickerImg) {
       throw new Error("Sticker image not rendered in chat message!");
+    }
+    if (!chatResult.modalVisible) {
+      throw new Error("Chat Music Picker modal did not open!");
+    }
+    if (!chatResult.hasAttachedBar) {
+      throw new Error("Attached track bar preview did not appear above input!");
+    }
+    if (!chatResult.hasTrackCard) {
+      throw new Error("Interactive chat track card was not rendered in message bubble!");
     }
 
     // -------------------------------------------------------------
@@ -410,11 +462,21 @@ async function runExhaustiveVerification() {
     if (libraryTest.likedCount < 1) throw new Error("Liked tracks persistence failed!");
 
     // -------------------------------------------------------------
-    // CHECKPOINT 12: Settings & Accounts (VK Music Token Storage)
+    // CHECKPOINT 12: Settings, Accounts & 10-Band Graphic EQ Persistence
     // -------------------------------------------------------------
-    console.log("\n>>> [CHECKPOINT 12] Settings & Accounts Atomic Persistence");
+    console.log("\n>>> [CHECKPOINT 12] Settings, Accounts & 10-Band Graphic Equalizer Persistence");
     const settingsTest = await cdp.eval(`
       (async () => {
+        // Switch to settings screen in UI
+        const navSettings = document.querySelector('.nav-item[data-screen="settings"]') || document.querySelector('[data-action="settings"]');
+        if (navSettings) navSettings.click();
+        await new Promise(r => setTimeout(r, 200));
+
+        // Click "Bass" preset button in EQ
+        const bassChip = document.querySelector('.eq-preset-chip[data-preset="Bass"]');
+        if (bassChip) bassChip.click();
+        await new Promise(r => setTimeout(r, 200));
+
         const curSettings = await window.__TAURI__.core.invoke("get_settings");
         curSettings.volume = 0.9;
         await window.__TAURI__.core.invoke("save_settings", { settings: curSettings });
@@ -425,15 +487,27 @@ async function runExhaustiveVerification() {
         await window.__TAURI__.core.invoke("save_accounts", { accounts: curAccounts });
         const savedAccounts = await window.__TAURI__.core.invoke("get_accounts");
 
+        const slidersCount = document.querySelectorAll(".eq-band-slider").length;
+        const presetsCount = document.querySelectorAll(".eq-preset-chip").length;
+
         return {
           volumePersisted: savedSettings.volume === 0.9,
-          vkTokenPersisted: savedAccounts.vkToken === "vk1.a.test_token_verification_123"
+          vkTokenPersisted: savedAccounts.vkToken === "vk1.a.test_token_verification_123",
+          eqSlidersCount: slidersCount,
+          eqPresetsCount: presetsCount,
+          eqPresetSaved: savedSettings.equalizerPreset === "Bass" || savedSettings.equalizer_preset === "Bass",
         };
       })()
     `);
-    console.log("    Settings & Accounts verified:", settingsTest);
+    console.log("    Settings, Accounts & EQ verified:", settingsTest);
     if (!settingsTest.volumePersisted || !settingsTest.vkTokenPersisted) {
       throw new Error("Settings or Accounts persistence failed!");
+    }
+    if (settingsTest.eqSlidersCount !== 10) {
+      throw new Error(`Expected 10 EQ band sliders, found ${settingsTest.eqSlidersCount}`);
+    }
+    if (settingsTest.eqPresetsCount < 7) {
+      throw new Error(`Expected at least 7 EQ presets, found ${settingsTest.eqPresetsCount}`);
     }
 
     // -------------------------------------------------------------

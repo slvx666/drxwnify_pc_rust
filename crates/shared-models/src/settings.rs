@@ -80,6 +80,19 @@ pub struct AppSettings {
     pub window_h: i32,
     #[serde(default)]
     pub window_maximized: bool,
+    #[serde(default = "default_equalizer_gains")]
+    pub equalizer_gains: Vec<f32>,
+    #[serde(default = "default_equalizer_preset")]
+    pub equalizer_preset: String,
+    #[serde(default)]
+    pub equalizer_enabled: bool,
+}
+
+fn default_equalizer_gains() -> Vec<f32> {
+    vec![0.0; 10]
+}
+fn default_equalizer_preset() -> String {
+    "Flat".to_string()
 }
 
 fn default_theme() -> String { "tategaki".to_string() }
@@ -153,6 +166,9 @@ impl Default for AppSettings {
             window_w: default_window_w(),
             window_h: default_window_h(),
             window_maximized: false,
+            equalizer_gains: default_equalizer_gains(),
+            equalizer_preset: default_equalizer_preset(),
+            equalizer_enabled: false,
         }
     }
 }

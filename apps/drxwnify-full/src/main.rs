@@ -230,9 +230,17 @@ fn send_message(to_pubkey: String, text: String, track: Option<Track>, state: St
         text,
         timestamp: chrono::Utc::now().timestamp_millis(),
         track_attachment: track,
+        reactions: std::collections::HashMap::new(),
     };
     state.chathub.lock().add_message(msg.clone());
     Ok(msg)
+}
+
+#[tauri::command]
+fn toggle_message_reaction(message_id: String, reaction: String, state: State<'_, AppState>) -> Result<ChatMessage, String> {
+    state.chathub.lock()
+        .toggle_reaction(&message_id, "me", &reaction)
+        .ok_or_else(|| "Message not found".to_string())
 }
 
 #[tauri::command]
@@ -350,6 +358,7 @@ fn main() {
             get_friends,
             get_messages,
             send_message,
+            toggle_message_reaction,
             download_track,
             download_clip,
             get_downloads,

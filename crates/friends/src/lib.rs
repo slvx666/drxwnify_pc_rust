@@ -9,6 +9,8 @@ pub struct ChatMessage {
     pub text: String,
     pub timestamp: i64,
     pub track_attachment: Option<Track>,
+    #[serde(default)]
+    pub reactions: std::collections::HashMap<String, Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -102,6 +104,22 @@ impl ChatHubManager {
 
     pub fn add_message(&mut self, msg: ChatMessage) {
         self.messages.push(msg);
+    }
+
+    pub fn toggle_reaction(&mut self, message_id: &str, user_pubkey: &str, reaction: &str) -> Option<ChatMessage> {
+        if let Some(msg) = self.messages.iter_mut().find(|m| m.id == message_id) {
+            let users = msg.reactions.entry(reaction.to_string()).or_default();
+            if let Some(idx) = users.iter().position(|u| u == user_pubkey) {
+                users.remove(idx);
+            } else {
+                users.push(user_pubkey.to_string());
+            }
+            if users.is_empty() {
+                msg.reactions.remove(reaction);
+            }
+            return Some(msg.clone());
+        }
+        None
     }
 
     pub fn get_messages(&self, friend_pubkey: &str) -> Vec<ChatMessage> {

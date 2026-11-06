@@ -75,6 +75,8 @@
     modalBackupClose: document.getElementById("modal-backup-close"),
     modalNewPlaylist: document.getElementById("modal-new-playlist"),
     modalPlaylistClose: document.getElementById("modal-playlist-close"),
+    modalChatMusicPicker: document.getElementById("modal-chat-music-picker"),
+    modalMusicPickerClose: document.getElementById("modal-music-picker-close"),
     btnMin: document.getElementById("btn-minimize"),
     btnMax: document.getElementById("btn-maximize"),
     btnClose: document.getElementById("btn-close"),
@@ -650,6 +652,135 @@
     });
   }
 
+  // --- 1:1 Android ChatMusicPicker Modal ---
+  async function openChatMusicPickerModal(onSelect) {
+    const modal = document.getElementById("modal-chat-music-picker");
+    const closeBtn = document.getElementById("modal-music-picker-close");
+    const tabs = modal.querySelectorAll(".picker-tab");
+    const searchInput = document.getElementById("picker-search-input");
+    const searchClear = document.getElementById("picker-search-clear");
+    const list = document.getElementById("picker-tracks-list");
+    if (!modal || !list) return;
+
+    modal.classList.remove("hidden");
+
+    let currentTab = "recent";
+    let debounceTimer = null;
+
+    closeBtn.onclick = () => {
+      modal.classList.add("hidden");
+    };
+
+    function renderTrackItems(tracks, emptyMsg = "Треков не найдено") {
+      if (!tracks || tracks.length === 0) {
+        list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--dim); font-size:13px;">${emptyMsg}</div>`;
+        return;
+      }
+      list.innerHTML = tracks.map((t) => {
+        const art = t.artists && t.artists[0] ? t.artists[0].name : "Неизвестен";
+        const dur = t.durationSec ? `${Math.floor(t.durationSec / 60)}:${String(t.durationSec % 60).padStart(2, '0')}` : "";
+        return `
+          <div class="picker-track-item" data-id="${t.id}">
+            <div class="picker-track-cover">
+              ${t.cover ? `<img src="${t.cover}" alt="cover" />` : '♫'}
+            </div>
+            <div class="picker-track-info">
+              <div class="picker-track-title">${t.title}</div>
+              <div class="picker-track-sub">${art} ${dur ? '• ' + dur : ''}</div>
+            </div>
+            <button class="picker-track-btn-add">+ Выбрать</button>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".picker-track-item").forEach((item) => {
+        item.onclick = () => {
+          const track = tracks.find((x) => x.id === item.dataset.id);
+          if (track) {
+            modal.classList.add("hidden");
+            if (onSelect) onSelect(track);
+          }
+        };
+      });
+    }
+
+    async function loadTabContent(tab) {
+      currentTab = tab;
+      tabs.forEach((t) => t.classList.toggle("active", t.dataset.tab === tab));
+      searchInput.value = "";
+      if (searchClear) searchClear.classList.add("hidden");
+
+      if (tab === "recent") {
+        searchInput.placeholder = "Фильтр по недавним трекам...";
+        let history = [];
+        try {
+          history = (await invoke("get_history")) || [];
+        } catch (e) {
+          history = state.history || [];
+        }
+        let tracks = history.map((h) => h.track || h).filter(Boolean);
+        if (state.currentTrack && !tracks.some((t) => t.id === state.currentTrack.id)) {
+          tracks = [state.currentTrack, ...tracks];
+        }
+        renderTrackItems(tracks, "Нет недавних треков");
+      } else if (tab === "library") {
+        searchInput.placeholder = "Фильтр по любимым трекам...";
+        let liked = [];
+        try {
+          liked = (await invoke("get_liked")) || [];
+        } catch (e) {
+          liked = state.likedTracks || [];
+        }
+        renderTrackItems(liked, "В медиатеке пока нет любимых треков");
+      } else if (tab === "search") {
+        searchInput.placeholder = "Поиск по каталогам InnerTube & VK...";
+        list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--dim); font-size:13px;">Введите поисковый запрос выше для поиска трека</div>`;
+      }
+    }
+
+    tabs.forEach((tabBtn) => {
+      tabBtn.onclick = () => loadTabContent(tabBtn.dataset.tab);
+    });
+
+    searchInput.oninput = (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      if (searchClear) searchClear.classList.toggle("hidden", !q);
+
+      if (currentTab === "search") {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(async () => {
+          if (!q) {
+            list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--dim); font-size:13px;">Введите поисковый запрос выше</div>`;
+            return;
+          }
+          list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--accent); font-size:13px;">Поиск "${q}"...</div>`;
+          try {
+            const res = await invoke("search", { query: q });
+            renderTrackItems(res.tracks || [], "Ничего не найдено в поиске");
+          } catch (err) {
+            list.innerHTML = `<div style="text-align:center; padding:30px; color:var(--dim); font-size:13px;">Ошибка поиска: ${err}</div>`;
+          }
+        }, 350);
+      } else {
+        const items = list.querySelectorAll(".picker-track-item");
+        items.forEach((el) => {
+          const text = el.textContent.toLowerCase();
+          el.style.display = text.includes(q) ? "flex" : "none";
+        });
+      }
+    };
+
+    if (searchClear) {
+      searchClear.onclick = () => {
+        searchInput.value = "";
+        searchClear.classList.add("hidden");
+        loadTabContent(currentTab);
+      };
+    }
+
+    loadTabContent("recent");
+  }
+
   async function renderFriendsScreen(container) {
     let friendList = [];
     try {
@@ -659,8 +790,8 @@
     }
     if (!friendList || friendList.length === 0) {
       friendList = [
-        { pubkey: "npub1slvx666", name: "slvx666 (drxwnslvt)", isOnline: true, currentTrack: { title: "Drown", artists: [{ name: "Bring Me The Horizon" }] } },
-        { pubkey: "npub1fend1x", name: "fend1x", isOnline: true, currentTrack: { title: "Resonance", artists: [{ name: "HOME" }] } },
+        { pubkey: "npub1slvx666", name: "slvx666 (drxwnslvt)", isOnline: true, currentTrack: { id: "drown_bmth", title: "Drown", artists: [{ name: "Bring Me The Horizon" }], cover: null, durationSec: 222 }, positionMs: 45000 },
+        { pubkey: "npub1fend1x", name: "fend1x", isOnline: true, currentTrack: { id: "res_home", title: "Resonance", artists: [{ name: "HOME" }], cover: null, durationSec: 212 }, positionMs: 89000 },
         { pubkey: "npub1clavdiy", name: "clavdiy", isOnline: false, currentTrack: null },
       ];
     }
@@ -682,14 +813,16 @@
           text: "Привет! Слушаешь новый релиз?",
           timestamp: Date.now() - 1000 * 60 * 15,
           trackAttachment: null,
+          reactions: { "❤️": ["npub1slvx666"] },
         },
         {
           id: "m2",
           fromPubkey: "me",
           toPubkey: activeFriend.pubkey,
-          text: "Да, слушаю через Drxwnify Full на Rust! Звучит шикарно.",
+          text: "Да, слушаю через Drxwnify Full на Rust! Звучит шикарно на WASAPI 192kHz.",
           timestamp: Date.now() - 1000 * 60 * 12,
           trackAttachment: null,
+          reactions: { "🔥": [activeFriend.pubkey, "me"] },
         },
         {
           id: "m3",
@@ -698,9 +831,12 @@
           text: "[sticker:aga]",
           timestamp: Date.now() - 1000 * 60 * 5,
           trackAttachment: null,
+          reactions: {},
         },
       ];
     }
+
+    const TOP_REACTIONS = ["❤️", "👍", "🔥", "😂", "💀", "😍", "😭"];
 
     function renderMessageBody(msg) {
       let html = "";
@@ -712,21 +848,49 @@
           html += `<div style="font-size:13.5px; word-break:break-word;">${msg.text}</div>`;
         }
       }
-      if (msg.trackAttachment || msg.track_attachment) {
-        const t = msg.trackAttachment || msg.track_attachment;
+      const t = msg.trackAttachment || msg.track_attachment;
+      if (t) {
         const artName = t.artists && t.artists[0] ? t.artists[0].name : "Drxwnify";
+        const dur = t.durationSec ? `${Math.floor(t.durationSec / 60)}:${String(t.durationSec % 60).padStart(2, '0')}` : "";
+        const tJson = encodeURIComponent(JSON.stringify(t));
         html += `
-          <div class="chat-track-card" data-id="${t.id}" style="margin-top:8px; padding:8px 10px; background:rgba(0,0,0,0.25); border-radius:8px; display:flex; align-items:center; gap:10px; cursor:pointer;">
-            <div style="font-size:20px; color:var(--accent);">♫</div>
-            <div style="flex:1; min-width:0;">
-              <div style="font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.title}</div>
-              <div style="font-size:11px; opacity:0.8;">${artName}</div>
+          <div class="chat-msg-track-card" data-track="${tJson}">
+            <div class="chat-msg-track-cover">
+              ${t.cover ? `<img src="${t.cover}" alt="cover" />` : '♫'}
             </div>
-            <button class="btn-play-chat-track" style="border:none; background:var(--accent); color:var(--on-accent); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">▶</button>
+            <div class="chat-msg-track-details">
+              <div class="title">${t.title}</div>
+              <div class="artist">${artName} ${dur ? '• ' + dur : ''}</div>
+            </div>
+            <div class="chat-msg-actions">
+              <button class="btn-chat-music-play" title="Воспроизвести трек">▶</button>
+              <button class="btn-chat-music-download" title="Скачать трек">⬇</button>
+            </div>
           </div>
         `;
       }
       return html;
+    }
+
+    function renderReactionsPills(msg) {
+      const reactions = msg.reactions || {};
+      const entries = Object.entries(reactions).filter(([_, users]) => users && users.length > 0);
+      if (entries.length === 0) return "";
+      return `
+        <div class="msg-reactions-pills">
+          ${entries
+            .map(([emoji, users]) => {
+              const hasMine = users.includes("me") || users.includes("npub1me");
+              return `
+              <span class="reaction-pill ${hasMine ? 'active' : ''}" data-msg-id="${msg.id}" data-reaction="${emoji}">
+                <span>${emoji}</span>
+                <span>${users.length}</span>
+              </span>
+            `;
+            })
+            .join("")}
+        </div>
+      `;
     }
 
     container.innerHTML = `
@@ -757,9 +921,16 @@
           <div class="chat-header" style="border-bottom:1px solid var(--panel-border); padding-bottom:10px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="font-size:16px; font-weight:800; color:var(--text);">${activeFriend.name}</span>
-              ${activeFriend.isOnline ? '<span style="width:8px; height:8px; border-radius:50%; background:#22c55e;"></span>' : ''}
+              ${activeFriend.isOnline ? '<span style="width:8px; height:8px; border-radius:50%; background:#22c55e;" title="В сети"></span>' : ''}
             </div>
-            <span style="font-size:11.5px; color:var(--mute);">Nostr Encrypted (Kind 4)</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+              ${activeFriend.currentTrack ? `
+                <button id="btn-listen-along" class="chip" style="font-size:11.5px; padding:4px 10px; background:var(--accent); color:var(--on-accent); border:none; cursor:pointer; font-weight:700; display:flex; align-items:center; gap:5px;">
+                  <span>🎧</span> <span>Слушать вместе</span>
+                </button>
+              ` : ''}
+              <span style="font-size:11.5px; color:var(--mute);">Nostr Encrypted (Kind 4)</span>
+            </div>
           </div>
 
           <div class="chat-messages" id="chat-messages-container" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px;">
@@ -767,9 +938,15 @@
               .map((m) => {
                 const isMe = m.fromPubkey === "me" || m.from_pubkey === "me";
                 return `
-                <div style="align-self:${isMe ? 'flex-end' : 'flex-start'}; max-width:70%; background:${isMe ? 'var(--accent)' : 'var(--fill)'}; color:${isMe ? 'var(--on-accent)' : 'var(--text)'}; padding:10px 14px; border-radius:var(--cover-radius); box-shadow:0 1px 4px rgba(0,0,0,0.1);">
+                <div class="chat-msg-bubble" style="align-self:${isMe ? 'flex-end' : 'flex-start'}; max-width:70%; background:${isMe ? 'var(--accent)' : 'var(--fill)'}; color:${isMe ? 'var(--on-accent)' : 'var(--text)'}; padding:10px 14px; border-radius:var(--cover-radius); box-shadow:0 1px 4px rgba(0,0,0,0.1); position:relative;">
+                  <div class="msg-quick-reactions">
+                    ${TOP_REACTIONS.map((r) => `<button class="reaction-quick-btn" data-msg-id="${m.id}" data-reaction="${r}">${r}</button>`).join("")}
+                  </div>
                   ${renderMessageBody(m)}
-                  <div style="font-size:10px; opacity:0.8; margin-top:4px; text-align:right;">${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; gap:8px;">
+                    ${renderReactionsPills(m)}
+                    <div style="font-size:10px; opacity:0.8; margin-left:auto;">${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                  </div>
                 </div>
               `;
               })
@@ -783,19 +960,39 @@
               <button id="btn-close-stickers" style="background:none; border:none; color:var(--dim); font-size:16px; cursor:pointer;">✕</button>
             </div>
             <div class="stickers-grid" style="flex:1; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:8px;">
-              ${ALL_STICKERS.map(s => `
+              ${ALL_STICKERS.map(
+                (s) => `
                 <div class="sticker-btn-item" data-id="${s.id}" title="${s.code}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; padding:6px; border-radius:8px; background:var(--fill); transition:transform 0.15s ease;">
                   <img src="stickers/${s.id}.webp" alt="${s.id}" style="width:52px; height:52px; object-fit:contain;" />
                 </div>
-              `).join("")}
+              `
+              ).join("")}
             </div>
           </div>
+
+          <!-- Pending Attached Track Bar -->
+          ${
+            state.chatPendingTrack
+              ? `
+            <div id="chat-attached-track-bar" class="chat-attached-track-bar">
+              <div class="chat-msg-track-cover" style="width:32px; height:32px; font-size:16px; border-radius:6px;">
+                ${state.chatPendingTrack.cover ? `<img src="${state.chatPendingTrack.cover}">` : '♫'}
+              </div>
+              <div style="flex:1; min-width:0;">
+                <div class="track-title">${state.chatPendingTrack.title}</div>
+                <div class="track-sub">${state.chatPendingTrack.artists && state.chatPendingTrack.artists[0] ? state.chatPendingTrack.artists[0].name : 'Drxwnify'}</div>
+              </div>
+              <button id="btn-chat-remove-attached" style="background:none; border:none; color:var(--dim); font-size:16px; cursor:pointer;" title="Убрать трек">✕</button>
+            </div>
+          `
+              : ""
+          }
 
           <div class="chat-input-bar" style="display:flex; gap:8px; margin-top:12px; align-items:center;">
             <button id="btn-toggle-stickers" class="btn-icon" title="Стикеры" style="width:40px; height:40px; border-radius:var(--chip-radius); background:var(--fill); border:1px solid var(--panel-border); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
               🏷️
             </button>
-            <button id="btn-attach-track" class="btn-icon" title="Прикрепить текущий трек" style="width:40px; height:40px; border-radius:var(--chip-radius); background:var(--fill); border:1px solid var(--panel-border); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
+            <button id="btn-attach-track" class="btn-icon ${state.chatPendingTrack ? 'active' : ''}" title="Выбрать музыку для чата" style="width:40px; height:40px; border-radius:var(--chip-radius); background:${state.chatPendingTrack ? 'var(--accent)' : 'var(--fill)'}; color:${state.chatPendingTrack ? 'var(--on-accent)' : 'var(--text)'}; border:1px solid var(--panel-border); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
               ♫
             </button>
             <input type="text" id="chat-text-input" placeholder="Написать сообщение через Nostr..." style="flex:1; padding:10px 14px; background:var(--fill); border:1px solid var(--panel-border); border-radius:var(--chip-radius); color:var(--text); font-family:var(--font-main);">
@@ -849,38 +1046,52 @@
       };
     });
 
+    // Chat Music Picker Button
     const attachTrackBtn = container.querySelector("#btn-attach-track");
     if (attachTrackBtn) {
-      attachTrackBtn.onclick = async () => {
-        if (!state.currentTrack) {
-          alert("Сейчас ничего не воспроизводится для прикрепления.");
-          return;
-        }
-        try {
-          await invoke("send_message", {
-            toPubkey: activeFriend.pubkey,
-            text: `Делюсь треком: ${state.currentTrack.title}`,
-            track: state.currentTrack,
-          });
+      attachTrackBtn.onclick = () => {
+        openChatMusicPickerModal((selectedTrack) => {
+          state.chatPendingTrack = selectedTrack;
           renderFriendsScreen(container);
-        } catch (e) {
-          console.error("Failed to attach track:", e);
+        });
+      };
+    }
+
+    // Remove attached track button
+    const removeAttachedBtn = container.querySelector("#btn-chat-remove-attached");
+    if (removeAttachedBtn) {
+      removeAttachedBtn.onclick = () => {
+        state.chatPendingTrack = null;
+        renderFriendsScreen(container);
+      };
+    }
+
+    // Listen along button
+    const btnListenAlong = container.querySelector("#btn-listen-along");
+    if (btnListenAlong && activeFriend.currentTrack) {
+      btnListenAlong.onclick = async () => {
+        playTrack(activeFriend.currentTrack);
+        if (activeFriend.positionMs) {
+          await invoke("seek", { positionMs: activeFriend.positionMs });
         }
       };
     }
 
+    // Send message button
     const sendBtn = container.querySelector("#btn-chat-send");
     const input = container.querySelector("#chat-text-input");
     if (sendBtn && input) {
       sendBtn.onclick = async () => {
         const text = input.value.trim();
-        if (!text) return;
+        if (!text && !state.chatPendingTrack) return;
         input.value = "";
+        const trackToSend = state.chatPendingTrack || null;
+        state.chatPendingTrack = null;
         try {
           await invoke("send_message", {
             toPubkey: activeFriend.pubkey,
             text,
-            track: null,
+            track: trackToSend,
           });
           renderFriendsScreen(container);
         } catch (e) {
@@ -892,13 +1103,75 @@
       };
     }
 
-    container.querySelectorAll(".btn-play-chat-track").forEach((btn) => {
+    // Play track from chat message card
+    container.querySelectorAll(".btn-chat-music-play").forEach((btn) => {
       btn.onclick = (e) => {
         e.stopPropagation();
-        const card = btn.closest(".chat-track-card");
-        if (card && activeFriend.currentTrack) {
-          playTrack(activeFriend.currentTrack);
+        const card = btn.closest(".chat-msg-track-card");
+        if (card && card.dataset.track) {
+          try {
+            const track = JSON.parse(decodeURIComponent(card.dataset.track));
+            playTrack(track);
+          } catch (err) {
+            console.error("Play chat track error:", err);
+          }
         }
+      };
+    });
+
+    // Download track from chat message card
+    container.querySelectorAll(".btn-chat-music-download").forEach((btn) => {
+      btn.onclick = async (e) => {
+        e.stopPropagation();
+        const card = btn.closest(".chat-msg-track-card");
+        if (card && card.dataset.track) {
+          try {
+            const track = JSON.parse(decodeURIComponent(card.dataset.track));
+            btn.textContent = "⏳";
+            await invoke("download_track", { track, streamUrl: null });
+            btn.textContent = "✓";
+            setTimeout(() => { btn.textContent = "⬇"; }, 2000);
+          } catch (err) {
+            console.error("Download chat track error:", err);
+            btn.textContent = "✕";
+          }
+        }
+      };
+    });
+
+    // Toggle reaction from quick reaction bar or pills
+    const toggleReaction = async (msgId, reaction) => {
+      try {
+        await invoke("toggle_message_reaction", { messageId: msgId, reaction });
+        renderFriendsScreen(container);
+      } catch (err) {
+        console.warn("toggle_message_reaction:", err);
+        // Fallback local update
+        const m = messages.find((x) => x.id === msgId);
+        if (m) {
+          m.reactions = m.reactions || {};
+          const users = m.reactions[reaction] || [];
+          if (users.includes("me")) {
+            m.reactions[reaction] = users.filter((u) => u !== "me");
+          } else {
+            m.reactions[reaction] = [...users, "me"];
+          }
+          renderFriendsScreen(container);
+        }
+      }
+    };
+
+    container.querySelectorAll(".reaction-quick-btn").forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        toggleReaction(btn.dataset.msgId, btn.dataset.reaction);
+      };
+    });
+
+    container.querySelectorAll(".reaction-pill").forEach((pill) => {
+      pill.onclick = (e) => {
+        e.stopPropagation();
+        toggleReaction(pill.dataset.msgId, pill.dataset.reaction);
       };
     });
   }
@@ -928,12 +1201,61 @@
     `;
   }
 
+  const EQ_FREQS = ["32", "64", "125", "250", "500", "1k", "2k", "4k", "8k", "16k"];
+  const EQ_PRESETS = {
+    "Flat": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "Bass": [7, 6, 4, 1.5, 0, 0, 0, 0, 0, 0],
+    "Vocals": [-2, -2, -1, 0, 1, 2.5, 4.5, 3, 1, 0],
+    "Metal": [4, 4, 2, -1, -3, -2, 1, 3.5, 4, 3],
+    "Electronic": [6, 5, 2, 0, -1, 0, 1, 2.5, 4, 5],
+    "Night": [-4, -3, -1, 0, 1, 1.5, 1, -1, -3, -4],
+    "Underwater": [6, 6, 4, 2, -2, -6, -10, -12, -12, -12],
+  };
+
   function renderSettingsScreen(container) {
+    const curGains = state.settings?.equalizerGains || state.settings?.equalizer_gains || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    const curPreset = state.settings?.equalizerPreset || state.settings?.equalizer_preset || "Flat";
+
     container.innerHTML = `
       <div class="screen-content">
         <div class="section-block" style="margin-bottom:24px;">
           <h1 style="font-size:26px; font-weight:800; color:var(--text); margin-bottom:6px;">Настройки</h1>
-          <p style="font-size:13.5px; color:var(--dim);">Параметры тем, аудиосистемы и интеграций.</p>
+          <p style="font-size:13.5px; color:var(--dim);">Параметры тем, эквалайзера, аудиосистемы и интеграций (1:1 Android Parity).</p>
+        </div>
+
+        <!-- 10-BAND GRAPHIC EQUALIZER -->
+        <div class="section-block" style="margin-bottom:24px;">
+          <div class="section-title" style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--mute); margin-bottom:12px;">Графический эквалайзер & DSP (10 Bands)</div>
+          <div class="eq-container">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+              <span style="font-size:13px; font-weight:700; color:var(--text);">Предустановки (Presets):</span>
+              <div style="display:flex; gap:14px; align-items:center;">
+                <label style="font-size:12.5px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                  <input type="checkbox" id="eq-normalize-toggle" ${state.settings?.normalize !== false ? 'checked' : ''}> Нормализация громкости (RMS)
+                </label>
+                <label style="font-size:12.5px; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                  <input type="checkbox" id="eq-skip-silence-toggle" ${state.settings?.skipSilence ? 'checked' : ''}> Пропуск тишины
+                </label>
+              </div>
+            </div>
+            <div class="eq-presets-row">
+              ${Object.keys(EQ_PRESETS).map(p => `
+                <button class="eq-preset-chip ${curPreset === p ? 'active' : ''}" data-preset="${p}">${p}</button>
+              `).join("")}
+            </div>
+            <div class="eq-bands-grid">
+              ${EQ_FREQS.map((freq, i) => {
+                const g = curGains[i] !== undefined ? curGains[i] : 0;
+                return `
+                  <div class="eq-band-col">
+                    <span class="eq-band-val" id="eq-val-${i}">${g > 0 ? '+' : ''}${g} dB</span>
+                    <input type="range" class="eq-band-slider" min="-12" max="12" step="0.5" value="${g}" data-band="${i}">
+                    <span class="eq-band-freq">${freq}</span>
+                  </div>
+                `;
+              }).join("")}
+            </div>
+          </div>
         </div>
 
         <div class="section-block" style="margin-bottom:24px;">
@@ -983,12 +1305,53 @@
         <div class="section-block">
           <div class="section-title" style="font-size:14px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--mute); margin-bottom:8px;">О программе</div>
           <p style="font-size:13px; color:var(--dim); line-height:1.6;">
-            Drxwnify Full Edition — 100% Rust Core (Wasapi, Symphonia, Tokio, InnerTube, VK Music, SoundCloud, LRCLIB).<br>
+            Drxwnify Full Edition — 100% Rust Core (Wasapi 192kHz dynamic resampler, Symphonia, Tokio, InnerTube, VK Music, SoundCloud, Nostr Kind 4, 37 Animated Stickers, ChatMusicPicker, 10-Band Graphic EQ).<br>
             Dual Edition архитектура. Версия 0.4.0.
           </p>
         </div>
       </div>
     `;
+
+    // Equalizer sliders listener
+    container.querySelectorAll(".eq-band-slider").forEach((slider) => {
+      slider.oninput = async (e) => {
+        const band = parseInt(slider.dataset.band, 10);
+        const val = parseFloat(slider.value);
+        const label = container.querySelector(`#eq-val-${band}`);
+        if (label) label.textContent = `${val > 0 ? '+' : ''}${val} dB`;
+
+        state.settings = state.settings || {};
+        state.settings.equalizerGains = state.settings.equalizerGains || [...curGains];
+        state.settings.equalizerGains[band] = val;
+        state.settings.equalizerPreset = "Custom";
+
+        try {
+          await invoke("save_settings", { settings: state.settings });
+        } catch (err) {
+          console.warn("save_settings eq:", err);
+        }
+      };
+    });
+
+    // Equalizer preset chips
+    container.querySelectorAll(".eq-preset-chip").forEach((btn) => {
+      btn.onclick = async () => {
+        const presetName = btn.dataset.preset;
+        const presetGains = EQ_PRESETS[presetName];
+        if (!presetGains) return;
+
+        state.settings = state.settings || {};
+        state.settings.equalizerGains = [...presetGains];
+        state.settings.equalizerPreset = presetName;
+
+        try {
+          await invoke("save_settings", { settings: state.settings });
+        } catch (err) {
+          console.warn("save_settings eq preset:", err);
+        }
+        renderSettingsScreen(container);
+      };
+    });
 
     // Look buttons
     container.querySelectorAll(".btn-look-opt").forEach((btn) => {
