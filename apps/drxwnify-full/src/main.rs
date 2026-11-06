@@ -2,6 +2,7 @@
 
 use drxwnify_audio_engine::AudioEngine;
 use drxwnify_core::{AppEdition, AppPaths, EventBus};
+use drxwnify_downloads::{DownloadManager, DownloadedItem};
 use drxwnify_friends::{ChatMessage, FriendStatus, ChatHubManager};
 use drxwnify_library::LibraryManager;
 use drxwnify_lyrics::LyricsService;
@@ -9,6 +10,7 @@ use drxwnify_network::HttpClient;
 use drxwnify_persistence::Store;
 use drxwnify_playback::Player;
 use drxwnify_search::SearchService;
+use drxwnify_stream_resolver::StreamResolver;
 use drxwnify_shared_models::*;
 use parking_lot::Mutex;
 use std::sync::Arc;
@@ -31,6 +33,7 @@ struct AppState {
     search_service: SearchService,
     lyrics_service: LyricsService,
     chathub: Arc<Mutex<ChatHubManager>>,
+    downloads: Arc<DownloadManager>,
     paths: AppPaths,
     settings: Arc<Mutex<AppSettings>>,
     accounts: Arc<Mutex<Accounts>>,
@@ -244,6 +247,26 @@ fn import_backup(zip_path: String, state: State<'_, AppState>) -> Result<usize, 
 }
 
 #[tauri::command]
+async fn download_track(track: Track, stream_url: Option<String>, state: State<'_, AppState>) -> Result<DownloadedItem, String> {
+    state.downloads.download_track(&track, stream_url).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+async fn download_clip(id: String, title: String, artist: String, video_url: Option<String>, state: State<'_, AppState>) -> Result<DownloadedItem, String> {
+    state.downloads.download_clip(&id, &title, &artist, video_url).await.map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+fn get_downloads(state: State<'_, AppState>) -> Vec<DownloadedItem> {
+    state.downloads.get_downloads()
+}
+
+#[tauri::command]
+fn remove_download(id: String, state: State<'_, AppState>) -> Result<(), String> {
+    state.downloads.remove_download(&id).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
 fn minimize_window(window: Window) -> Result<(), String> {
     window.minimize().map_err(|e| e.to_string())
 }
@@ -273,8 +296,10 @@ fn main() {
     let library = Arc::new(LibraryManager::new(paths.clone()));
 
     let search_service = SearchService::new(http.clone());
-    let lyrics_service = LyricsService::new(http);
+    let lyrics_service = LyricsService::new(http.clone());
     let chathub = Arc::new(Mutex::new(ChatHubManager::new()));
+    let resolver = Arc::new(StreamResolver::new(event_bus.clone(), http.clone(), None));
+    let downloads = Arc::new(DownloadManager::new(paths.clone(), http, Some(resolver)));
 
     let settings: AppSettings = Store::load_or_default(&paths.settings_file);
     let accounts: Accounts = Store::load_or_default(&paths.accounts_file);
@@ -285,6 +310,7 @@ fn main() {
         search_service,
         lyrics_service,
         chathub,
+        downloads,
         settings: Arc::new(Mutex::new(settings)),
         accounts: Arc::new(Mutex::new(accounts)),
         paths,
@@ -324,6 +350,10 @@ fn main() {
             get_friends,
             get_messages,
             send_message,
+            download_track,
+            download_clip,
+            get_downloads,
+            remove_download,
             import_backup,
             minimize_window,
             maximize_window,

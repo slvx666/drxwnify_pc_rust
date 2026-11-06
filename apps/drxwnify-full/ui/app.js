@@ -448,20 +448,157 @@
     `;
   }
 
-  function renderDownloadsScreen(container) {
+  const ALL_STICKERS = [
+    { id: "aga", code: "aga" },
+    { id: "cooked", code: "coocked" },
+    { id: "deal", code: "deal" },
+    { id: "dumbass", code: "dumbass" },
+    { id: "hmm", code: "hmm" },
+    { id: "keepgambling", code: "keepgambling" },
+    { id: "ragebait", code: "ragebait" },
+    { id: "who", code: "who" },
+    { id: "fans", code: "fans" },
+    { id: "happy_guy", code: "happy_guy" },
+    { id: "clock", code: "clock" },
+    { id: "sad_smile", code: "sad_smile" },
+    { id: "woman", code: "woman" },
+    { id: "angry_man", code: "angry_man" },
+    { id: "pink_cry", code: "pink_cry" },
+    { id: "social_credit", code: "social_credit" },
+    { id: "bald_man", code: "bald_man" },
+    { id: "shocked_man", code: "shocked_man" },
+    { id: "hairy_man", code: "hairy_man" },
+    { id: "crying_man", code: "crying_man" },
+    { id: "writing_man", code: "writing_man" },
+    { id: "jaw_man", code: "jaw_man" },
+    { id: "denied", code: "denied" },
+    { id: "binoculars", code: "binoculars" },
+    { id: "patrick", code: "patrick" },
+    { id: "pepper", code: "pepper" },
+    { id: "kitty_please", code: "kitty_please" },
+    { id: "pig", code: "pig" },
+    { id: "download_dog", code: "download_dog" },
+    { id: "sweet_bird", code: "sweet_bird" },
+    { id: "super_man", code: "super_man" },
+    { id: "dumb_man", code: "dumb_man" },
+    { id: "donkey", code: "donkey" },
+    { id: "smart_man", code: "smart_man" },
+    { id: "bunny", code: "bunny" },
+    { id: "its_me_down", code: "its_me_down" },
+    { id: "me", code: "me" }
+  ];
+
+  async function renderDownloadsScreen(container) {
+    let downloads = [];
+    try {
+      downloads = (await invoke("get_downloads")) || [];
+    } catch (e) {
+      console.warn("get_downloads error:", e);
+    }
+
+    const hasCurrent = !!state.currentTrack;
     container.innerHTML = `
-      <div class="screen-content">
-        <div class="playlist-header" style="display:flex; align-items:center; gap:20px; margin-bottom:24px;">
-          <div class="playlist-cover-large" style="width:120px; height:120px; border-radius:var(--cover-radius); background:var(--fill); display:flex; align-items:center; justify-content:center; font-size:44px; color:var(--accent);">⬇</div>
-          <div class="playlist-info">
-            <span class="playlist-type" style="font-size:12px; font-weight:700; color:var(--accent);">ОФЛАЙН МЕДИАТЕКА</span>
-            <h1 class="playlist-name" style="font-size:28px; font-weight:800; margin:4px 0; color:var(--text);">Загруженные треки</h1>
-            <span class="playlist-meta" style="font-size:13px; color:var(--dim);">Хранятся в %USERPROFILE%\\Music\\Drxwnify</span>
+      <div class="screen-content" style="padding-bottom: 30px;">
+        <div class="playlist-header" style="display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:20px;">
+            <div class="playlist-cover-large" style="width:110px; height:110px; border-radius:var(--cover-radius); background:var(--fill); display:flex; align-items:center; justify-content:center; font-size:40px; color:var(--accent);">⬇</div>
+            <div class="playlist-info">
+              <span class="playlist-type" style="font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase;">Офлайн медиатека</span>
+              <h1 class="playlist-name" style="font-size:28px; font-weight:800; margin:4px 0; color:var(--text);">Загруженные треки & клипы</h1>
+              <span class="playlist-meta" style="font-size:13px; color:var(--dim);">Всего файлов: ${downloads.length} • Папка: %USERPROFILE%\\Music\\Drxwnify</span>
+            </div>
+          </div>
+          <div class="downloads-actions" style="display:flex; gap:10px;">
+            <button id="btn-dl-curr-track" class="chip ${hasCurrent ? 'chip-active' : ''}" style="cursor:${hasCurrent ? 'pointer' : 'not-allowed'}; opacity:${hasCurrent ? 1 : 0.5}; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <span>⬇</span> Скачать трек (MP3)
+            </button>
+            <button id="btn-dl-curr-clip" class="chip ${hasCurrent ? 'chip-active' : ''}" style="cursor:${hasCurrent ? 'pointer' : 'not-allowed'}; opacity:${hasCurrent ? 1 : 0.5}; font-weight:700; display:flex; align-items:center; gap:6px;">
+              <span>🎬</span> Скачать клип (MP4)
+            </button>
           </div>
         </div>
-        <div class="empty-notice" style="padding:32px 0; text-align:center;">Загруженные треки будут доступны здесь для воспроизведения без подключения к сети.</div>
+
+        <div class="downloads-list" style="display:flex; flex-direction:column; gap:8px;">
+          ${
+            downloads.length === 0
+              ? '<div class="empty-notice" style="padding:40px 0; text-align:center; color:var(--dim);">Здесь пока пусто. Вы можете скачать любой трек или видеоклип через плеер или поиск.</div>'
+              : downloads
+                  .map(
+                    (d) => `
+              <div class="download-item-row" data-id="${d.id}" style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--cover-radius);">
+                <div style="display:flex; align-items:center; gap:14px; flex:1; min-width:0;">
+                  <div style="width:42px; height:42px; border-radius:8px; background:var(--fill); display:flex; align-items:center; justify-content:center; font-size:20px; color:var(--accent); flex-shrink:0;">
+                    ${d.kind === 'clip' ? '🎬' : '♫'}
+                  </div>
+                  <div style="display:flex; flex-direction:column; min-width:0; overflow:hidden;">
+                    <span style="font-weight:700; font-size:14px; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${d.title}</span>
+                    <span style="font-size:12px; color:var(--dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${d.artist} • <span style="font-family:monospace; color:var(--accent);">${d.quality}</span> • ${new Date(d.downloadedAt).toLocaleString()}</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-left:16px;">
+                  ${d.kind !== 'clip' ? `<button class="btn-play-dl chip" data-id="${d.id}" style="cursor:pointer; font-weight:700;">▶ Воспроизвести</button>` : ''}
+                  <button class="btn-delete-dl chip" data-id="${d.id}" style="cursor:pointer; color:#f87171;">✕ Удалить</button>
+                </div>
+              </div>
+            `
+                  )
+                  .join("")
+          }
+        </div>
       </div>
     `;
+
+    const dlTrackBtn = container.querySelector("#btn-dl-curr-track");
+    if (dlTrackBtn && hasCurrent) {
+      dlTrackBtn.onclick = async () => {
+        dlTrackBtn.textContent = "⏳ Скачивание...";
+        try {
+          await invoke("download_track", { track: state.currentTrack, streamUrl: null });
+          renderDownloadsScreen(container);
+        } catch (e) {
+          alert("Ошибка скачивания трека: " + e);
+          dlTrackBtn.textContent = "⬇ Скачать трек (MP3)";
+        }
+      };
+    }
+
+    const dlClipBtn = container.querySelector("#btn-dl-curr-clip");
+    if (dlClipBtn && hasCurrent) {
+      dlClipBtn.onclick = async () => {
+        dlClipBtn.textContent = "⏳ Скачивание клипа...";
+        try {
+          const artistName = state.currentTrack.artists && state.currentTrack.artists[0] ? state.currentTrack.artists[0].name : "Drxwnify";
+          await invoke("download_clip", { id: state.currentTrack.id, title: state.currentTrack.title, artist: artistName, videoUrl: null });
+          renderDownloadsScreen(container);
+        } catch (e) {
+          alert("Ошибка скачивания клипа: " + e);
+          dlClipBtn.textContent = "🎬 Скачать клип (MP4)";
+        }
+      };
+    }
+
+    container.querySelectorAll(".btn-delete-dl").forEach((btn) => {
+      btn.onclick = async () => {
+        await invoke("remove_download", { id: btn.dataset.id });
+        renderDownloadsScreen(container);
+      };
+    });
+
+    container.querySelectorAll(".btn-play-dl").forEach((btn) => {
+      btn.onclick = () => {
+        const item = downloads.find((d) => d.id === btn.dataset.id);
+        if (item) {
+          playTrack({
+            id: item.id,
+            title: item.title,
+            artists: [{ id: "artist", name: item.artist }],
+            album: null,
+            durationSec: 180,
+            cover: null,
+          });
+        }
+      };
+    });
   }
 
   function renderHistoryScreen(container) {
@@ -513,23 +650,91 @@
     });
   }
 
-  function renderFriendsScreen(container) {
-    const friendList = state.friends.length
-      ? state.friends
-      : [
-          { pubkey: "slvx666", name: "slvx666 (drxwnslvt)", isOnline: true, currentTrack: { title: "Drown", artistNames: () => "Bring Me The Horizon" } },
-          { pubkey: "fend1x", name: "fend1x", isOnline: true, currentTrack: { title: "Resonance", artistNames: () => "HOME" } },
-          { pubkey: "clvd", name: "clavdiy", isOnline: false, currentTrack: null },
-        ];
+  async function renderFriendsScreen(container) {
+    let friendList = [];
+    try {
+      friendList = (await invoke("get_friends")) || [];
+    } catch (e) {
+      console.warn("get_friends error:", e);
+    }
+    if (!friendList || friendList.length === 0) {
+      friendList = [
+        { pubkey: "npub1slvx666", name: "slvx666 (drxwnslvt)", isOnline: true, currentTrack: { title: "Drown", artists: [{ name: "Bring Me The Horizon" }] } },
+        { pubkey: "npub1fend1x", name: "fend1x", isOnline: true, currentTrack: { title: "Resonance", artists: [{ name: "HOME" }] } },
+        { pubkey: "npub1clavdiy", name: "clavdiy", isOnline: false, currentTrack: null },
+      ];
+    }
 
     const activeFriend = state.activeChatFriend || friendList[0];
+    let messages = [];
+    try {
+      messages = (await invoke("get_messages", { friendPubkey: activeFriend.pubkey })) || [];
+    } catch (e) {
+      console.warn("get_messages error:", e);
+    }
+
+    if (messages.length === 0) {
+      messages = [
+        {
+          id: "m1",
+          fromPubkey: activeFriend.pubkey,
+          toPubkey: "me",
+          text: "Привет! Слушаешь новый релиз?",
+          timestamp: Date.now() - 1000 * 60 * 15,
+          trackAttachment: null,
+        },
+        {
+          id: "m2",
+          fromPubkey: "me",
+          toPubkey: activeFriend.pubkey,
+          text: "Да, слушаю через Drxwnify Full на Rust! Звучит шикарно.",
+          timestamp: Date.now() - 1000 * 60 * 12,
+          trackAttachment: null,
+        },
+        {
+          id: "m3",
+          fromPubkey: activeFriend.pubkey,
+          toPubkey: "me",
+          text: "[sticker:aga]",
+          timestamp: Date.now() - 1000 * 60 * 5,
+          trackAttachment: null,
+        },
+      ];
+    }
+
+    function renderMessageBody(msg) {
+      let html = "";
+      if (msg.text) {
+        if (msg.text.startsWith("[sticker:") && msg.text.endsWith("]")) {
+          const stickerId = msg.text.slice(9, -1);
+          html += `<img src="stickers/${stickerId}.webp" alt="${stickerId}" class="chat-sticker" style="width:110px; height:110px; object-fit:contain; display:block; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.2));" />`;
+        } else {
+          html += `<div style="font-size:13.5px; word-break:break-word;">${msg.text}</div>`;
+        }
+      }
+      if (msg.trackAttachment || msg.track_attachment) {
+        const t = msg.trackAttachment || msg.track_attachment;
+        const artName = t.artists && t.artists[0] ? t.artists[0].name : "Drxwnify";
+        html += `
+          <div class="chat-track-card" data-id="${t.id}" style="margin-top:8px; padding:8px 10px; background:rgba(0,0,0,0.25); border-radius:8px; display:flex; align-items:center; gap:10px; cursor:pointer;">
+            <div style="font-size:20px; color:var(--accent);">♫</div>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:12.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${t.title}</div>
+              <div style="font-size:11px; opacity:0.8;">${artName}</div>
+            </div>
+            <button class="btn-play-chat-track" style="border:none; background:var(--accent); color:var(--on-accent); border-radius:50%; width:28px; height:28px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:11px;">▶</button>
+          </div>
+        `;
+      }
+      return html;
+    }
 
     container.innerHTML = `
       <div class="chathub-container" style="display:flex; height:600px; gap:16px;">
         <div class="chathub-sidebar" style="width:260px; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--panel-radius); padding:16px; display:flex; flex-direction:column;">
           <div class="chathub-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
             <h3 style="font-size:15px; font-weight:800; color:var(--text);">Друзья & Nostr</h3>
-            <span class="badge">Relays: 5 ok</span>
+            <span class="badge" style="font-size:10px; background:var(--accent); color:var(--on-accent); padding:2px 8px; border-radius:12px;">Relays: 5 ok</span>
           </div>
           <div class="chathub-friends-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto;">
             ${friendList
@@ -548,28 +753,60 @@
           </div>
         </div>
 
-        <div class="chathub-chat-pane" style="flex:1; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--panel-radius); padding:16px; display:flex; flex-direction:column;">
+        <div class="chathub-chat-pane" style="flex:1; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--panel-radius); padding:16px; display:flex; flex-direction:column; position:relative;">
           <div class="chat-header" style="border-bottom:1px solid var(--panel-border); padding-bottom:10px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:16px; font-weight:800; color:var(--text);">${activeFriend.name}</span>
-            <span style="font-size:11.5px; color:var(--mute);">Nostr Direct Message</span>
-          </div>
-          <div class="chat-messages" id="chat-messages-container" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:6px;">
-            <div style="align-self:flex-start; max-width:70%; background:var(--fill); padding:10px 14px; border-radius:var(--cover-radius);">
-              <div style="font-size:13.5px; color:var(--text);">Привет! Слушаешь новый релиз?</div>
-              <div style="font-size:10px; color:var(--mute); margin-top:4px; text-align:right;">14:20</div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:16px; font-weight:800; color:var(--text);">${activeFriend.name}</span>
+              ${activeFriend.isOnline ? '<span style="width:8px; height:8px; border-radius:50%; background:#22c55e;"></span>' : ''}
             </div>
-            <div style="align-self:flex-end; max-width:70%; background:var(--accent); color:var(--on-accent); padding:10px 14px; border-radius:var(--cover-radius);">
-              <div style="font-size:13.5px;">Да, слушаю через Drxwnify Full на Rust! Звучит шикарно.</div>
-              <div style="font-size:10px; opacity:0.8; margin-top:4px; text-align:right;">14:22</div>
+            <span style="font-size:11.5px; color:var(--mute);">Nostr Encrypted (Kind 4)</span>
+          </div>
+
+          <div class="chat-messages" id="chat-messages-container" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; padding-right:6px;">
+            ${messages
+              .map((m) => {
+                const isMe = m.fromPubkey === "me" || m.from_pubkey === "me";
+                return `
+                <div style="align-self:${isMe ? 'flex-end' : 'flex-start'}; max-width:70%; background:${isMe ? 'var(--accent)' : 'var(--fill)'}; color:${isMe ? 'var(--on-accent)' : 'var(--text)'}; padding:10px 14px; border-radius:var(--cover-radius); box-shadow:0 1px 4px rgba(0,0,0,0.1);">
+                  ${renderMessageBody(m)}
+                  <div style="font-size:10px; opacity:0.8; margin-top:4px; text-align:right;">${new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                </div>
+              `;
+              })
+              .join("")}
+          </div>
+
+          <!-- Sticker Picker Popover -->
+          <div id="chat-sticker-picker" class="hidden" style="position:absolute; bottom:64px; left:16px; right:16px; height:240px; background:var(--panel); border:1px solid var(--panel-border); border-radius:var(--panel-radius); padding:12px; box-shadow:0 8px 30px rgba(0,0,0,0.4); z-index:100; display:none; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <span style="font-size:13px; font-weight:800; color:var(--text);">Стикеры (${ALL_STICKERS.length})</span>
+              <button id="btn-close-stickers" style="background:none; border:none; color:var(--dim); font-size:16px; cursor:pointer;">✕</button>
+            </div>
+            <div class="stickers-grid" style="flex:1; overflow-y:auto; display:grid; grid-template-columns:repeat(auto-fill, minmax(64px, 1fr)); gap:8px;">
+              ${ALL_STICKERS.map(s => `
+                <div class="sticker-btn-item" data-id="${s.id}" title="${s.code}" style="cursor:pointer; display:flex; align-items:center; justify-content:center; padding:6px; border-radius:8px; background:var(--fill); transition:transform 0.15s ease;">
+                  <img src="stickers/${s.id}.webp" alt="${s.id}" style="width:52px; height:52px; object-fit:contain;" />
+                </div>
+              `).join("")}
             </div>
           </div>
-          <div class="chat-input-bar" style="display:flex; gap:8px; margin-top:12px;">
+
+          <div class="chat-input-bar" style="display:flex; gap:8px; margin-top:12px; align-items:center;">
+            <button id="btn-toggle-stickers" class="btn-icon" title="Стикеры" style="width:40px; height:40px; border-radius:var(--chip-radius); background:var(--fill); border:1px solid var(--panel-border); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
+              🏷️
+            </button>
+            <button id="btn-attach-track" class="btn-icon" title="Прикрепить текущий трек" style="width:40px; height:40px; border-radius:var(--chip-radius); background:var(--fill); border:1px solid var(--panel-border); cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;">
+              ♫
+            </button>
             <input type="text" id="chat-text-input" placeholder="Написать сообщение через Nostr..." style="flex:1; padding:10px 14px; background:var(--fill); border:1px solid var(--panel-border); border-radius:var(--chip-radius); color:var(--text); font-family:var(--font-main);">
-            <button id="btn-chat-send" class="btn-primary" style="padding:8px 18px; border-radius:var(--chip-radius); background:var(--accent); color:var(--on-accent); border:none; font-weight:700; cursor:pointer;">Отправить</button>
+            <button id="btn-chat-send" class="btn-primary" style="padding:8px 18px; height:40px; border-radius:var(--chip-radius); background:var(--accent); color:var(--on-accent); border:none; font-weight:700; cursor:pointer;">Отправить</button>
           </div>
         </div>
       </div>
     `;
+
+    const msgContainer = container.querySelector("#chat-messages-container");
+    if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
 
     container.querySelectorAll(".chathub-friend-item").forEach((it) => {
       it.onclick = () => {
@@ -578,28 +815,92 @@
       };
     });
 
+    const stickerPicker = container.querySelector("#chat-sticker-picker");
+    const toggleStickersBtn = container.querySelector("#btn-toggle-stickers");
+    const closeStickersBtn = container.querySelector("#btn-close-stickers");
+
+    if (toggleStickersBtn && stickerPicker) {
+      toggleStickersBtn.onclick = () => {
+        const isHidden = stickerPicker.style.display === "none" || !stickerPicker.style.display;
+        stickerPicker.style.display = isHidden ? "flex" : "none";
+      };
+    }
+
+    if (closeStickersBtn && stickerPicker) {
+      closeStickersBtn.onclick = () => {
+        stickerPicker.style.display = "none";
+      };
+    }
+
+    container.querySelectorAll(".sticker-btn-item").forEach((sBtn) => {
+      sBtn.onclick = async () => {
+        const stickerId = sBtn.dataset.id;
+        stickerPicker.style.display = "none";
+        try {
+          await invoke("send_message", {
+            toPubkey: activeFriend.pubkey,
+            text: `[sticker:${stickerId}]`,
+            track: null,
+          });
+          renderFriendsScreen(container);
+        } catch (e) {
+          console.error("Failed to send sticker:", e);
+        }
+      };
+    });
+
+    const attachTrackBtn = container.querySelector("#btn-attach-track");
+    if (attachTrackBtn) {
+      attachTrackBtn.onclick = async () => {
+        if (!state.currentTrack) {
+          alert("Сейчас ничего не воспроизводится для прикрепления.");
+          return;
+        }
+        try {
+          await invoke("send_message", {
+            toPubkey: activeFriend.pubkey,
+            text: `Делюсь треком: ${state.currentTrack.title}`,
+            track: state.currentTrack,
+          });
+          renderFriendsScreen(container);
+        } catch (e) {
+          console.error("Failed to attach track:", e);
+        }
+      };
+    }
+
     const sendBtn = container.querySelector("#btn-chat-send");
     const input = container.querySelector("#chat-text-input");
     if (sendBtn && input) {
-      sendBtn.onclick = () => {
+      sendBtn.onclick = async () => {
         const text = input.value.trim();
         if (!text) return;
-        const msgContainer = container.querySelector("#chat-messages-container");
-        if (msgContainer) {
-          msgContainer.innerHTML += `
-            <div style="align-self:flex-end; max-width:70%; background:var(--accent); color:var(--on-accent); padding:10px 14px; border-radius:var(--cover-radius);">
-              <div style="font-size:13.5px;">${text}</div>
-              <div style="font-size:10px; opacity:0.8; margin-top:4px; text-align:right;">${new Date().toLocaleTimeString()}</div>
-            </div>
-          `;
-          msgContainer.scrollTop = msgContainer.scrollHeight;
-        }
         input.value = "";
+        try {
+          await invoke("send_message", {
+            toPubkey: activeFriend.pubkey,
+            text,
+            track: null,
+          });
+          renderFriendsScreen(container);
+        } catch (e) {
+          console.error("Failed to send message:", e);
+        }
       };
       input.onkeydown = (e) => {
         if (e.key === "Enter") sendBtn.click();
       };
     }
+
+    container.querySelectorAll(".btn-play-chat-track").forEach((btn) => {
+      btn.onclick = (e) => {
+        e.stopPropagation();
+        const card = btn.closest(".chat-track-card");
+        if (card && activeFriend.currentTrack) {
+          playTrack(activeFriend.currentTrack);
+        }
+      };
+    });
   }
 
   function renderReviewsScreen(container) {
@@ -793,7 +1094,9 @@
                 </div>
               </div>
               <div class="track-time" style="font-size:12px; font-family:monospace; color:var(--dim); margin:0 16px;">${formatTime(t.durationSec)}</div>
-              <div class="track-actions">
+              <div class="track-actions" style="display:flex; align-items:center;">
+                <button class="btn-icon btn-dl-track-search" data-id="${t.id}" title="Скачать MP3" style="background:none; border:none; color:var(--dim); cursor:pointer; font-size:14px; margin-right:8px;">⬇</button>
+                <button class="btn-icon btn-dl-clip-search" data-id="${t.id}" title="Скачать клип (MP4)" style="background:none; border:none; color:var(--dim); cursor:pointer; font-size:14px; margin-right:10px;">🎬</button>
                 <button class="btn-icon btn-play-search" data-id="${t.id}" style="background:none; border:none; color:var(--accent); cursor:pointer; font-size:18px;">▶</button>
               </div>
             </div>
@@ -807,6 +1110,41 @@
         row.onclick = () => {
           const idx = parseInt(row.dataset.idx, 10);
           playTracks(res.tracks, idx);
+        };
+      });
+
+      container.querySelectorAll(".btn-dl-track-search").forEach((b) => {
+        b.onclick = async (e) => {
+          e.stopPropagation();
+          const t = res.tracks.find((item) => item.id === b.dataset.id);
+          if (t) {
+            b.textContent = "⏳";
+            try {
+              await invoke("download_track", { track: t, streamUrl: null });
+              b.textContent = "✓";
+            } catch (err) {
+              console.error(err);
+              b.textContent = "✕";
+            }
+          }
+        };
+      });
+
+      container.querySelectorAll(".btn-dl-clip-search").forEach((b) => {
+        b.onclick = async (e) => {
+          e.stopPropagation();
+          const t = res.tracks.find((item) => item.id === b.dataset.id);
+          if (t) {
+            b.textContent = "⏳";
+            try {
+              const artName = t.artists && t.artists[0] ? t.artists[0].name : "Drxwnify";
+              await invoke("download_clip", { id: t.id, title: t.title, artist: artName, videoUrl: null });
+              b.textContent = "✓";
+            } catch (err) {
+              console.error(err);
+              b.textContent = "✕";
+            }
+          }
         };
       });
 

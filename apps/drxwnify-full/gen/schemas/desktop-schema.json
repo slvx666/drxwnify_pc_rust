@@ -207,10 +207,28 @@
           "markdownDescription": "Enables the create_playlist command without any pre-configured scope."
         },
         {
+          "description": "Enables the download_clip command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-download-clip",
+          "markdownDescription": "Enables the download_clip command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the download_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-download-track",
+          "markdownDescription": "Enables the download_track command without any pre-configured scope."
+        },
+        {
           "description": "Enables the get_accounts command without any pre-configured scope.",
           "type": "string",
           "const": "allow-get-accounts",
           "markdownDescription": "Enables the get_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the get_downloads command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-downloads",
+          "markdownDescription": "Enables the get_downloads command without any pre-configured scope."
         },
         {
           "description": "Enables the get_friends command without any pre-configured scope.",
@@ -315,6 +333,12 @@
           "markdownDescription": "Enables the previous_track command without any pre-configured scope."
         },
         {
+          "description": "Enables the remove_download command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-remove-download",
+          "markdownDescription": "Enables the remove_download command without any pre-configured scope."
+        },
+        {
           "description": "Enables the save_accounts command without any pre-configured scope.",
           "type": "string",
           "const": "allow-save-accounts",
@@ -417,10 +441,28 @@
           "markdownDescription": "Denies the create_playlist command without any pre-configured scope."
         },
         {
+          "description": "Denies the download_clip command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-download-clip",
+          "markdownDescription": "Denies the download_clip command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the download_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-download-track",
+          "markdownDescription": "Denies the download_track command without any pre-configured scope."
+        },
+        {
           "description": "Denies the get_accounts command without any pre-configured scope.",
           "type": "string",
           "const": "deny-get-accounts",
           "markdownDescription": "Denies the get_accounts command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_downloads command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-downloads",
+          "markdownDescription": "Denies the get_downloads command without any pre-configured scope."
         },
         {
           "description": "Denies the get_friends command without any pre-configured scope.",
@@ -523,6 +565,12 @@
           "type": "string",
           "const": "deny-previous-track",
           "markdownDescription": "Denies the previous_track command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the remove_download command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-remove-download",
+          "markdownDescription": "Denies the remove_download command without any pre-configured scope."
         },
         {
           "description": "Denies the save_accounts command without any pre-configured scope.",

@@ -245,17 +245,18 @@ async fn test_e2e_07_nostr_identity_and_chathub() {
     assert_eq!(id_b.public_key_hex().len(), 64);
 
     let mut hub = ChatHubManager::new();
+    let initial_count = hub.get_friends().len();
     let friend = drxwnify_friends::FriendStatus {
         pubkey: id_b.public_key_hex(),
-        name: "fend1x".to_string(),
+        name: "fend1x_test".to_string(),
         is_online: true,
         current_track: Some(Track::new("bmth:1", "Can You Feel My Heart", "Bring Me The Horizon", 227)),
         position_ms: Some(45000),
     };
     hub.add_friend(friend);
     let friends = hub.get_friends();
-    assert_eq!(friends.len(), 1, "ChatHub should contain added friend");
-    assert_eq!(friends[0].name, "fend1x");
+    assert_eq!(friends.len(), initial_count + 1, "ChatHub should contain added friend");
+    assert!(friends.iter().any(|f| f.name == "fend1x_test"));
 
     let msg = ChatMessage {
         id: "msg_test_1".to_string(),
@@ -272,4 +273,44 @@ async fn test_e2e_07_nostr_identity_and_chathub() {
     assert_eq!(conversation[0].text, "Listening to Bring Me The Horizon!");
     assert!(conversation[0].track_attachment.is_some());
     println!("[E2E TEST 7] PASSED: Nostr identity and ChatHub verified.");
+}
+
+#[tokio::test]
+async fn test_e2e_08_downloads_and_clips() {
+    println!("\n=== [E2E TEST 8] Track & Clip Downloads Pipeline ===");
+    let temp_dir = std::env::temp_dir().join(format!("drxwnify_test_dl_{}", chrono::Utc::now().timestamp_nanos_opt().unwrap_or(0)));
+    let mut paths = AppPaths::new(AppEdition::Full);
+    paths.root_dir = temp_dir.clone();
+    paths.downloads_dir = temp_dir.join("downloads");
+    let _ = paths.ensure_directories();
+
+    let http = HttpClient::default();
+    let dl_manager = drxwnify_downloads::DownloadManager::new(paths.clone(), http, None);
+
+    let track = Track::new("bmth_drown_dl", "Drown", "Bring Me The Horizon", 222);
+    // 1. Download audio track with fallback
+    let item_audio = dl_manager.download_track(&track, Some("http://invalid.stream/audio.mp3".to_string())).await.expect("Download track should succeed");
+    assert_eq!(item_audio.kind, "audio");
+    assert_eq!(item_audio.title, "Drown");
+    assert!(std::path::Path::new(&item_audio.path).exists(), "Downloaded audio file must exist on disk");
+
+    // 2. Download video clip
+    let item_clip = dl_manager.download_clip("bmth_drown_vid", "Drown", "Bring Me The Horizon", None).await.expect("Download clip should succeed");
+    assert_eq!(item_clip.kind, "clip");
+    assert_eq!(item_clip.quality, "1080p Video");
+    assert!(std::path::Path::new(&item_clip.path).exists(), "Downloaded clip file must exist on disk");
+
+    // 3. Query downloads store
+    let all_downloads = dl_manager.get_downloads();
+    assert_eq!(all_downloads.len(), 2, "Both track and clip should be registered in downloads");
+
+    // 4. Remove download
+    dl_manager.remove_download(&item_audio.id).expect("Removal should succeed");
+    let remaining = dl_manager.get_downloads();
+    assert_eq!(remaining.len(), 1, "Only clip should remain after track removal");
+    assert_eq!(remaining[0].id, item_clip.id);
+
+    // Clean up
+    let _ = std::fs::remove_dir_all(&temp_dir);
+    println!("[E2E TEST 8] PASSED: Track and Clip downloads verified successfully.");
 }

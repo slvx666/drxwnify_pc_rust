@@ -41,6 +41,10 @@
     "allow-get-messages",
     "allow-send-message",
     "allow-import-backup",
+    "allow-download-track",
+    "allow-download-clip",
+    "allow-get-downloads",
+    "allow-remove-download",
     "allow-minimize-window",
     "allow-maximize-window",
     "allow-close-window"

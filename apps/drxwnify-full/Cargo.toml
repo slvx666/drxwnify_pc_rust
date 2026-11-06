@@ -24,6 +24,7 @@ drxwnify-friends.workspace = true
 drxwnify-discord.workspace = true
 drxwnify-windows-integration.workspace = true
 drxwnify-persistence.workspace = true
+drxwnify-downloads.workspace = true
 tauri = { version = "2", features = [] }
 serde.workspace = true
 serde_json.workspace = true

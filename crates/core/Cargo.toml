@@ -27,5 +27,6 @@ drxwnify-providers.workspace = true
 drxwnify-stream-resolver.workspace = true
 drxwnify-search.workspace = true
 drxwnify-library.workspace = true
+drxwnify-downloads.workspace = true
 url.workspace = true
 chrono.workspace = true
